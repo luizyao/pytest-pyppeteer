@@ -1,5 +1,10 @@
 ## pytest-pyppeteer
-Plugin for running [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest
+Test with [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
+![GitHub issues](https://img.shields.io/github/issues-raw/luizyao/pytest-pyppeteer)
+![GitHub](https://img.shields.io/github/license/luizyao/pytest-pyppeteer)
 
 ## Quick Start
 
