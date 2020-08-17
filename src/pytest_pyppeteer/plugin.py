@@ -10,6 +10,7 @@ from _pytest.fixtures import SubRequest
 from _pytest.nodes import Item, Collector
 from _pytest.python import PyCollector
 from pydantic import root_validator, FilePath
+
 from .models import Page, Pyppeteer, PyppeteerOptions, PyppeteerSettings
 from .utils import create_new_pyppeteer_project
 

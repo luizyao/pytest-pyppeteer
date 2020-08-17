@@ -24,8 +24,11 @@ async def query_rating(target: Pyppeteer, movie_or_book_name: str):
 
 @pytest.mark.parametrize("target", [("target1", "target2")], indirect=True)
 async def test_shawshank_rating(target):
+    target1, target2 = target
     shawshank_rating = partial(query_rating, movie_or_book_name="肖申克的救赎")
 
-    movie_rating, book_rating = await asyncio.gather(*map(shawshank_rating, target))
+    movie_rating, book_rating = await asyncio.gather(
+        shawshank_rating(target1), shawshank_rating(target2)
+    )
 
     assert movie_rating == book_rating
