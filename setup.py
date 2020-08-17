@@ -7,8 +7,8 @@ with Path("requirements.txt").open(mode="r") as requirements_txt:
         str(requirement) for requirement in parse_requirements(requirements_txt)
     ]
 
-with open("README.md", "r") as f:
-    long_description = f.read()
+with Path("README.md").open(mode="r", encoding="utf-8") as readme_md:
+    long_description = readme_md.read()
 
 setup(
     name="pytest-pyppeteer",
