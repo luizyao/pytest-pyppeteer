@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-def create_new_pyppeteer_project(nptp: str) -> None:
+def create_new_pyppeteer_project(nptp: Path) -> None:
     path: Path = Path(nptp)
     desc_dir: Path = path / "desc"
     desc_dir.mkdir(parents=True, exist_ok=True)
