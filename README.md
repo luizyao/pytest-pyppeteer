@@ -4,16 +4,15 @@ Test with [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 ![GitHub issues](https://img.shields.io/github/issues-raw/luizyao/pytest-pyppeteer)
+![PyPI](https://img.shields.io/pypi/v/pytest-pyppeteer)
 ![GitHub](https://img.shields.io/github/license/luizyao/pytest-pyppeteer)
 
-## Quick Start
+## Installation
 
-### Installation
-
-#### Requirements
+### Requirements
 pytest-pyppeteer work with Python >=3.6.
 
-#### Install pytest-pyppeteer
+### Install pytest-pyppeteer
 
 ```bash
 pip install pytest-pyppeteer
@@ -22,7 +21,7 @@ pip install pytest-pyppeteer
 ## Usage
 For example, compare the scores of a book and its movie on [Douban](https://www.douban.com).
 
-### New pyppeteer test project
+### `--nptp, --new-pyppeteer-test-project`
 Create a new pyppeteer test project in the specified path.
 
 ```bash
