@@ -47,7 +47,7 @@ def pytest_addoption(
         "--nptp",
         "--new-pyppeteer-test-project",
         dest="nptp",
-        type=str,
+        type=Path,
         action="store",
         metavar="path",
         help="Create a new pyppeteer test project in the given path.",
@@ -56,9 +56,9 @@ def pytest_addoption(
 
 @pytest.mark.tryfirst
 def pytest_cmdline_main(config: conf.Config) -> Optional[Union[pytest.ExitCode, int]]:
-    nptp: str = config.getoption("nptp")
-    if nptp:
-        create_new_pyppeteer_project(nptp)
+    nptp_path: Optional[Path] = config.getoption("nptp")
+    if nptp_path:
+        create_new_pyppeteer_project(nptp_path)
         return pytest.ExitCode.OK
 
 
