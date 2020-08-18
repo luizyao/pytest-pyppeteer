@@ -1,14 +1,15 @@
 import asyncio
 import inspect
-from typing import Dict, Any, Tuple, Union, List, Iterator, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
 import pytest
 import toml
 from _pytest import config as conf
 from _pytest.fixtures import SubRequest
-from _pytest.nodes import Item, Collector
-from _pytest.python import PyCollector
+from _pytest.nodes import Item
+from _pytest.main import Session
+from _pytest.config import Config
 from pydantic import root_validator, FilePath
 
 from .models import Page, Pyppeteer, PyppeteerOptions, PyppeteerSettings
@@ -63,25 +64,24 @@ def pytest_cmdline_main(config: conf.Config) -> Optional[Union[pytest.ExitCode, 
         return pytest.ExitCode.OK
 
 
+def add_asyncio_marker(item: Item) -> Item:
+    if "asyncio" not in item.keywords and _is_coroutine(item.obj):
+        item.add_marker(pytest.mark.asyncio)
+    return item
+
+
 # Mark a hook implementation function such that the plugin machinery will try to call it first/as first as possible.
 @pytest.mark.tryfirst
-def pytest_pycollect_makeitem(
-    collector: PyCollector, name: str, obj: Any
-) -> Union[None, Item, Collector, List[Union[Item, Collector]]]:
+def pytest_collection_modifyitems(session: Session, config: Config, items: List[Item]):
     """
-    Return a custom item/collector for a Python object in a module, or None.
+    Called after collection has been performed. May filter or re-order the items in-place.
 
-    Stops at first non-None result
+    :param session: The pytest session object.
+    :param config: The pytest config object.
+    :param items: List of item objects.
+    :return:
     """
-    if collector.istestfunction(obj, name) and _is_coroutine(obj):
-
-        def asyncioed_items() -> Iterator[Item]:
-            for item in collector._genfunctions(name, obj):
-                if "asyncio" not in item.keywords:
-                    item.add_marker(pytest.mark.asyncio)
-                yield item
-
-        return list(asyncioed_items())
+    items[:] = [add_asyncio_marker(item) for item in items]
 
 
 @pytest.fixture(scope="session")
