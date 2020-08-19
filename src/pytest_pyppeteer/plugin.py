@@ -1,15 +1,15 @@
 import asyncio
 import inspect
-from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pytest
 import toml
 from _pytest import config as conf
-from _pytest.fixtures import SubRequest
-from _pytest.nodes import Item
-from _pytest.main import Session
 from _pytest.config import Config
+from _pytest.fixtures import SubRequest
+from _pytest.main import Session
+from _pytest.nodes import Item
 from pydantic import root_validator, FilePath
 
 from .models import Page, Pyppeteer, PyppeteerOptions, PyppeteerSettings
@@ -127,7 +127,9 @@ def pyppeteer_settings(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
             return values
 
     targets_settings: Dict = settings.get("targets", {})
-    targets = {k: Target.parse_obj(v) for k, v in targets_settings.items()}
+    targets = {
+        k: Target.parse_obj(v) for k, v in targets_settings.items() if v.get("name", "")
+    }
     return targets
 
 
