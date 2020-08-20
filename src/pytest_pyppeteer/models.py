@@ -1,6 +1,7 @@
 """
 How to model a page?
 """
+import asyncio
 from typing import List, Dict, Any, Union, Optional
 
 import cssselect
@@ -231,7 +232,7 @@ class Pyppeteer(BaseModel):
         :param hidden: Wait for element to not be found in the DOM or to be hidden;
                         i.e. have ``display: none`` or ``visibility: hidden`` CSS
                         properties. Defaults to ``False``.
-        :param timeout: Maximum time to wait for in milliseconds.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param custom_parameter: The values used to replace "%" in the locator.
         :return:
@@ -256,7 +257,7 @@ class Pyppeteer(BaseModel):
         :param text: A text to input into a focused element.
         :param clear: Clear the input field first. Defaults to True.
         :param delay: Time to wait between key presses in milliseconds. Defaults to 0.
-        :param timeout: Maximum time to wait for in milliseconds.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param custom_parameter: The values used to replace "%" in the locator.
         :return:
@@ -310,7 +311,7 @@ class Pyppeteer(BaseModel):
         :param click_count: Defaults to 1.
         :param delay: Time to wait between ``mousedown`` and ``mouseup`` in milliseconds. Defaults to 0.
         :param custom_parameter: The values used to replace "%" in the locator.
-        :param timeout: Maximum time to wait for in milliseconds.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :return: None
         """
@@ -334,7 +335,7 @@ class Pyppeteer(BaseModel):
 
         :param elem_name: Element name.
         :param custom_parameter: The values used to replace "%" in the locator.
-        :param timeout: Maximum time to wait for in milliseconds.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :return:
         """
@@ -346,6 +347,34 @@ class Pyppeteer(BaseModel):
             locator, "(node => node.value || node.innerText)"
         )
         return value.strip()
+
+    async def hover(
+        self,
+        elem_name: str,
+        custom_parameter: tuple = (),
+        timeout: Union[float, int] = 30000,
+        delay: Union[float, int] = 0,
+    ) -> None:
+        """Move mouse over to center of the element which matches ``elem_name``.
+
+        If needed, this method scrolls element into view. If this element is
+        detached from DOM tree, the method raises an ``ElementHandleError``.
+
+        If no element matched the ``elem_name``, raise ``PageError``.
+
+        :param elem_name: Element name.
+        :param custom_parameter: The values used to replace "%" in the locator.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
+                        Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
+        :param delay: The hover time on this element to delay the next operation in milliseconds.
+        :return:
+        """
+        await self.wait_for_element(
+            elem_name, visible=True, timeout=timeout, custom_parameter=custom_parameter
+        )
+        locator: str = self._get_element_locator(elem_name, custom_parameter)
+        await self.tab.hover(selector=locator)
+        await asyncio.sleep(delay / 1000)
 
     async def goto(
         self, url: str, timeout: int = 30000, wait_until: Union[str, List[str]] = "load"
