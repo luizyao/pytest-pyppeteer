@@ -234,7 +234,7 @@ class Pyppeteer(BaseModel):
                         properties. Defaults to ``False``.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
-        :param custom_parameter: The values used to replace "%" in the locator.
+        :param custom_parameter: The values used to replace "{}" in the locator.
         :return:
         """
         locator: str = self._get_element_locator(elem_name, custom_parameter)
@@ -259,7 +259,7 @@ class Pyppeteer(BaseModel):
         :param delay: Time to wait between key presses in milliseconds. Defaults to 0.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
-        :param custom_parameter: The values used to replace "%" in the locator.
+        :param custom_parameter: The values used to replace "{}" in the locator.
         :return:
         """
         await self.wait_for_element(
@@ -310,7 +310,7 @@ class Pyppeteer(BaseModel):
         :param button: ``left``, ``right``, or ``middle``. Defaults to ``left``.
         :param click_count: Defaults to 1.
         :param delay: Time to wait between ``mousedown`` and ``mouseup`` in milliseconds. Defaults to 0.
-        :param custom_parameter: The values used to replace "%" in the locator.
+        :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :return: None
@@ -334,7 +334,7 @@ class Pyppeteer(BaseModel):
         This method raises error if no element matched the ``elem_name``.
 
         :param elem_name: Element name.
-        :param custom_parameter: The values used to replace "%" in the locator.
+        :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :return:
@@ -363,7 +363,7 @@ class Pyppeteer(BaseModel):
         If no element matched the ``elem_name``, raise ``PageError``.
 
         :param elem_name: Element name.
-        :param custom_parameter: The values used to replace "%" in the locator.
+        :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param delay: The hover time on this element to delay the next operation in milliseconds.
