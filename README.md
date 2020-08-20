@@ -18,6 +18,12 @@ pytest-pyppeteer work with Python >=3.6.
 pip install pytest-pyppeteer
 ```
 
+or install latest one:
+
+```bash
+pip install git+https://github.com/luizyao/pytest-pyppeteer.git
+```
+
 ## Usage
 For example, compare the scores of a book and its movie on [Douban](https://www.douban.com).
 
