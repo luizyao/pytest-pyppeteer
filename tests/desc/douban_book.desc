@@ -5,7 +5,8 @@ search_apply = '.inp-btn > input:nth-child(1)'
 
 [SearchResultsPage]
 # {} indicates that this part can be replaced by the custom parameter
-result = '#root > div > div > div > div > div:nth-child({}) > div.item-root a.cover-link'
+# Xpath
+result = '(//*[@class="item-root"])[{}]/a'
 
 [DetailPage]
 rating = '#interest_sectl > div > div.rating_self.clearfix > strong'

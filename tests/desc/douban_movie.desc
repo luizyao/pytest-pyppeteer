@@ -5,6 +5,7 @@ search_apply = '.inp-btn > input:nth-child(1)'
 
 [SearchResultsPage]
 # {} indicates that this part can be replaced by the custom parameter
+# Selector
 result = '#root > div > div > div > div > div:nth-child({}) > div.item-root a.cover-link'
 
 [DetailPage]
