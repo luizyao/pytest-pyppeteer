@@ -2,18 +2,19 @@
 How to model a page?
 """
 import asyncio
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, Tuple, Awaitable
 
 import cssselect
 from lxml import etree
 from pydantic import BaseModel, root_validator, FilePath, HttpUrl
 from pyppeteer import launch
 from pyppeteer.browser import Browser
+from pyppeteer.element_handle import ElementHandle
 from pyppeteer.network_manager import Response
 from pyppeteer.page import Page as Tab
 
 
-class Locator(str):
+class Locator(tuple):
     @classmethod
     def __get_validators__(cls):
         """
@@ -26,7 +27,7 @@ class Locator(str):
         yield cls.validate
 
     @classmethod
-    def validate(cls, value: str) -> str:
+    def validate(cls, value: str) -> tuple:
         """Locator string must a valid css or xpath.
 
         :param value: a locator string
@@ -34,28 +35,25 @@ class Locator(str):
         """
         if not isinstance(value, str):
             raise TypeError("Invalid parameter type, string required.")
-        if "{}" in value:
-            return cls(
-                value
-            )  # TODO: Custom parameters need to be dynamically populated in use
-        # CSS
+        simulated_value = value.replace("{}", "1")
+        # CSS selector
         try:
-            cssselect.parse(value)
+            cssselect.parse(simulated_value)
         except cssselect.SelectorSyntaxError:
             pass
         else:
-            return cls(value)
+            return "CSS", value
         # XPath
         try:
-            etree.XPath(value)
+            etree.XPath(simulated_value)
         except etree.XPathSyntaxError:
             pass
         else:
-            return cls(value)
+            return "XPath", value
         raise ValueError("Invalid parameter format, neither a valid css nor xpath.")
 
     def __repr__(self):
-        return "Locator({})".format(super().__repr__())
+        return "::".join(super(Locator, self).__repr__())
 
 
 class Element(BaseModel):
@@ -151,9 +149,12 @@ class Pyppeteer(BaseModel):
         except KeyError:
             assert False, "[{}] is missing in the {}.desc.".format(page_name, self.name)
 
-    def _get_element_locator(self, name: str, custom_parameter: tuple = ()) -> str:
+    def _get_element_locator(
+        self, name: str, custom_parameter: tuple = ()
+    ) -> Tuple[str, str]:
         try:
-            return self.page[name].__root__.format(*custom_parameter)
+            css_or_xpath, locator = self.page[name].__root__
+            return css_or_xpath, locator.format(*custom_parameter)
         except KeyError:
             assert False, 'No such element("{}") in the page([{}]).'.format(
                 name, self.page_name
@@ -210,22 +211,23 @@ class Pyppeteer(BaseModel):
         """
         return await self.tab.waitForNavigation(timeout=timeout, waitUntil=wait_until)
 
-    async def wait_for_element(
+    async def wait_for_css_or_xpath(
         self,
-        elem_name: str,
+        css_or_xpath: str,
+        locator_string: str,
         visible: bool = True,
         hidden: bool = False,
         timeout: Union[float, int] = 30000,
         custom_parameter: tuple = (),
-    ):
-        """Wait until element which matches ``elem_name`` appears on page.
+    ) -> Awaitable:
+        """Wait until element which matches ``locator_string`` appears on page by ``xpath_or_css``.
 
-        Wait for the ``elem_name`` to appear in page. If at the moment of
-        calling the method the ``elem_name`` already exists, the method will
-        return immediately. If the selector doesn't appear after the
-        ``timeout`` milliseconds of waiting, the function will raise error.
+        If at the moment of calling the method the ``locator_string`` already exists, the method will
+        return immediately. If the selector doesn't appear after the ``timeout`` milliseconds of waiting,
+        the function will raise error.
 
-        :param elem_name: Element name.
+        :param css_or_xpath: Locator method. Only could be `css` or `xpath`.
+        :param locator_string: Locator string.
         :param visible: Wait for element to be present in DOM and to be visible;
                         i.e. to not have ``display: none`` or ``visibility: hidden``
                         CSS properties. Defaults to ``True``.
@@ -235,16 +237,50 @@ class Pyppeteer(BaseModel):
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param custom_parameter: The values used to replace "{}" in the locator.
-        :return:
+        :return: Return awaitable object which resolves when element specified
+                 by element name is added to DOM.
         """
-        locator: str = self._get_element_locator(elem_name, custom_parameter)
-        await self.tab.waitForSelector(
-            selector=locator, visible=visible, hidden=hidden, timeout=timeout
+        assert css_or_xpath.lower() in (
+            "css",
+            "xpath",
+        ), "Only support xpath and css locator."
+        if css_or_xpath.lower() == "css":
+            return await self.tab.waitForSelector(
+                selector=locator_string, visible=visible, hidden=hidden, timeout=timeout
+            )
+        elif css_or_xpath.lower() == "xpath":
+            return await self.tab.waitForXPath(
+                xpath=locator_string, visible=visible, hidden=hidden, timeout=timeout
+            )
+
+    async def query_element(
+        self,
+        elem_name: str,
+        visible: bool = True,
+        hidden: bool = False,
+        timeout: Union[float, int] = 30000,
+        custom_parameter: tuple = (),
+    ) -> Optional[ElementHandle]:
+        css_or_xpath, locator = self._get_element_locator(elem_name, custom_parameter)
+        await self.wait_for_css_or_xpath(
+            css_or_xpath,
+            locator,
+            visible=visible,
+            hidden=hidden,
+            timeout=timeout,
+            custom_parameter=custom_parameter,
         )
+
+        element: Optional[ElementHandle] = None
+        if css_or_xpath.lower() == "css":
+            element = await self.tab.querySelector(selector=locator)
+        elif css_or_xpath.lower() == "xpath":
+            element = (await self.tab.xpath(expression=locator))[0]
+        return element
 
     async def input(
         self,
-        elem_name: str,
+        element: Union[str, ElementHandle],
         text: str,
         clear: bool = False,
         delay: int = 0,
@@ -253,7 +289,7 @@ class Pyppeteer(BaseModel):
     ) -> None:
         """Input ``text`` on the element which matches ``elem_name``.
 
-        :param elem_name: Element name
+        :param element: Element name or an element.
         :param text: A text to input into a focused element.
         :param clear: Clear the input field first. Defaults to True.
         :param delay: Time to wait between key presses in milliseconds. Defaults to 0.
@@ -262,39 +298,40 @@ class Pyppeteer(BaseModel):
         :param custom_parameter: The values used to replace "{}" in the locator.
         :return:
         """
-        await self.wait_for_element(
-            elem_name, visible=True, timeout=timeout, custom_parameter=custom_parameter
-        )
-        locator: str = self._get_element_locator(elem_name, custom_parameter)
+        if isinstance(element, str):
+            element: ElementHandle = await self.query_element(
+                element,
+                visible=True,
+                timeout=timeout,
+                custom_parameter=custom_parameter,
+            )
         if clear:
-            value = await self.get_value(elem_name)
+            value = await self.get_value(element, dispose=False)
             if value:
-                from asyncio import sleep
-
-                await self.click(elem_name)
+                await self.click(element, dispose=False)
                 await self.tab.keyboard.down("Shift")
                 for _ in value:
                     await self.tab.keyboard.press("ArrowLeft")
-                    await sleep(delay / 1000.0)
+                    await asyncio.sleep(delay / 1000.0)
                 await self.tab.keyboard.up("Shift")
                 await self.tab.keyboard.press("Backspace")
-        await self.tab.type(selector=locator, text=text, delay=delay)
+        await element.type(text, delay=delay)
+        await element.dispose()
 
     async def click(
         self,
-        elem_name: str,
+        element: Union[str, ElementHandle],
         button: str = "left",
         click_count: int = 1,
         delay: Union[float, int] = 0,
         custom_parameter: tuple = (),
         timeout: Union[float, int] = 30000,
+        dispose: bool = True,
     ) -> None:
-        """Click element which matches ``elem_name``.
+        """Click element which matches ``elem_name`` or ``element``.
 
-        This method fetches an element with ``elem_name``, scrolls it into view
-        if needed, and then uses :attr:`mouse` to click in the center of the
-        element. If there's no element matching ``elem_name``, the method raises
-        ``PageError``.
+        Scrolls it into view if needed, and then uses :attr:`mouse` to click in the center of the
+        element. If there's no element matching ``elem_name``, the method raises ``PageError``.
 
         .. note:: If this method triggers a navigation event and there's a
             separate :meth:`waitForNavigation`, you may end up with a race
@@ -306,54 +343,66 @@ class Pyppeteer(BaseModel):
                     tab.wait_for_navigation(),
                 ])
 
-        :param elem_name:
+        :param element: Element name or an element.
         :param button: ``left``, ``right``, or ``middle``. Defaults to ``left``.
         :param click_count: Defaults to 1.
         :param delay: Time to wait between ``mousedown`` and ``mouseup`` in milliseconds. Defaults to 0.
         :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
+        :param dispose: Whether to dispose element handler.
         :return: None
         """
-        await self.wait_for_element(
-            elem_name, visible=True, timeout=timeout, custom_parameter=custom_parameter
-        )
-        locator: str = self._get_element_locator(elem_name, custom_parameter)
-        await self.tab.click(
-            selector=locator, clickCount=click_count, button=button, delay=delay,
-        )
+        if isinstance(element, str):
+            element: ElementHandle = await self.query_element(
+                element,
+                visible=True,
+                timeout=timeout,
+                custom_parameter=custom_parameter,
+            )
+        await element.click(clickCount=click_count, button=button, delay=delay)
+        if dispose:
+            await element.dispose()
 
     async def get_value(
         self,
-        elem_name: str,
+        element: Union[str, ElementHandle],
         custom_parameter: tuple = (),
         timeout: Union[float, int] = 30000,
+        dispose: bool = True,
     ) -> str:
-        """Get value with an element which matches ``elem_name``.
+        """Get value with an element which matches ``elem_name`` or ``element``.
 
         This method raises error if no element matched the ``elem_name``.
 
-        :param elem_name: Element name.
+        :param element: Element name or an element.
         :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
+        :param dispose: Whether to dispose element handler.
         :return:
         """
-        await self.wait_for_element(
-            elem_name, visible=True, timeout=timeout, custom_parameter=custom_parameter
+        if isinstance(element, str):
+            element: ElementHandle = await self.query_element(
+                element,
+                visible=True,
+                timeout=timeout,
+                custom_parameter=custom_parameter,
+            )
+        value: str = await element.executionContext.evaluate(
+            "(node => node.value || node.innerText)", element
         )
-        locator: str = self._get_element_locator(elem_name, custom_parameter)
-        value: str = await self.tab.querySelectorEval(
-            locator, "(node => node.value || node.innerText)"
-        )
+        if dispose:
+            await element.dispose()
         return value.strip()
 
     async def hover(
         self,
-        elem_name: str,
+        element: Union[str, ElementHandle],
         custom_parameter: tuple = (),
         timeout: Union[float, int] = 30000,
         delay: Union[float, int] = 0,
+        dispose: bool = True,
     ) -> None:
         """Move mouse over to center of the element which matches ``elem_name``.
 
@@ -362,19 +411,25 @@ class Pyppeteer(BaseModel):
 
         If no element matched the ``elem_name``, raise ``PageError``.
 
-        :param elem_name: Element name.
+        :param element: Element name or an element.
         :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param delay: The hover time on this element to delay the next operation in milliseconds.
+        :param dispose: Whether to dispose element handler.
         :return:
         """
-        await self.wait_for_element(
-            elem_name, visible=True, timeout=timeout, custom_parameter=custom_parameter
-        )
-        locator: str = self._get_element_locator(elem_name, custom_parameter)
-        await self.tab.hover(selector=locator)
+        if isinstance(element, str):
+            element: ElementHandle = await self.query_element(
+                element,
+                visible=True,
+                timeout=timeout,
+                custom_parameter=custom_parameter,
+            )
+        await element.hover()
         await asyncio.sleep(delay / 1000)
+        if dispose:
+            await element.dispose()
 
     async def goto(
         self, url: str, timeout: int = 30000, wait_until: Union[str, List[str]] = "load"

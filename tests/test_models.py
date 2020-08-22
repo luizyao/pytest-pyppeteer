@@ -16,6 +16,7 @@ def test_page():
             "search_input": "#kw",
             "search_button": '//*[@id="su"]',
             "results": '(//div[@class="item-root"]//*[@class="title"]/a)[{}]',
+            "custom_string_xpath": '//*[@class="overview-info"]//div[@class="item-label"][contains(text(), "{}")]/following-sibling::div[@class="item-content"]',
         }
     )
     assert page["results"]
