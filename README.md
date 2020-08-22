@@ -6,6 +6,7 @@ Test with [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![PyPI](https://img.shields.io/pypi/v/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![gitmoji-changelog](https://img.shields.io/badge/Changelog-gitmoji-brightgreen.svg)](https://github.com/frinyvonnick/gitmoji-changelog)
 [![GitHub](https://img.shields.io/github/license/luizyao/pytest-pyppeteer)](LICENSE)
 
 # Installation
