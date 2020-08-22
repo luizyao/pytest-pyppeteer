@@ -1,0 +1,7 @@
+{
+  "project": {
+    "name": "pytest-pyppeteer",
+    "description": "Test with pyppeteer in pytest.",
+    "version": "0.1.1"
+  }
+}
