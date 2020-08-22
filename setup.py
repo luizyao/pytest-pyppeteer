@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
-from pkg_resources import parse_requirements
 from pathlib import Path
+
+from pkg_resources import parse_requirements
+from setuptools import setup, find_packages
 
 with Path("requirements.txt").open(mode="r") as requirements_txt:
     install_requires = [
@@ -12,7 +13,7 @@ with Path("README.md").open(mode="r", encoding="utf-8") as readme_md:
 
 setup(
     name="pytest-pyppeteer",
-    version="0.1.0",
+    version="0.1.1",
     author="Luiz Yao",
     author_email="yaomeng614@gmail.com",
     description="Plugin for running pyppeteer in pytest.",
@@ -25,9 +26,11 @@ setup(
     package_dir={"": "src"},
     classifiers=[
         "Framework :: Pytest",
-        "Topic :: Software Development :: Testing",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.6",
