@@ -186,7 +186,7 @@ details_item = '//*[@class="overview-info"]//div[@class="item-label"][contains(t
 await target.click("result", custom_parameter=(1,))
 ```
 
-# One target
+## One target
 Direct to use `target` in test script:
 
 ```python
@@ -195,14 +195,14 @@ async def test_001(target: Pyppeteer):
     await target.open(goto_base_url=True)
 ```
 
-# Multiple targets
+## Multiple targets
 ```python
 @pytest.mark.parametrize("target", [("target1", "target2")], indirect=True)
 async def test_shawshank_rating(target):
     target1, target2 = target
 ```
 
-# Clear before input
+## Clear before input
 
 ```python
 await target.input("search_input", text="肖申克的救赎", clear=True)
