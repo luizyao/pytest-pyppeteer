@@ -151,6 +151,63 @@ async def test_shawshank_rating(target):
 ## Execute tests screenshot
 ![](assets/douban_example.gif)
 
+# Usage
+
+## `CSS` selector
+
+```toml
+[SearchResultsPage]
+# {} indicates that this part can be replaced by the custom parameter
+# CSS
+result = '#root > div > div > div > div > div:nth-child({}) > div.item-root a.cover-link'
+```
+
+## `XPath`
+
+```toml
+[SearchResultsPage]
+# {} indicates that this part can be replaced by the custom parameter
+# XPath
+result = '(//*[@class="item-root"])[{}]/a'
+```
+
+Use XPath locate element via element certain content. e.g. `contains(text(), "{}")`:
+
+```toml
+details_item = '//*[@class="overview-info"]//div[@class="item-label"][contains(text(), "{}")]/following-sibling::div[@class="item-content"]'
+```
+
+> CSS doesn't support content selector, refer to <https://www.w3.org/TR/selectors-3/#content-selectors>
+
+## Replace `{}` with custom parameter:
+
+```python
+# Get the first result
+await target.click("result", custom_parameter=(1,))
+```
+
+# One target
+Direct to use `target` in test script:
+
+```python
+@pytest.mark.parametrize("target", ["target1"], indirect=True)
+async def test_001(target: Pyppeteer):
+    await target.open(goto_base_url=True)
+```
+
+# Multiple targets
+```python
+@pytest.mark.parametrize("target", [("target1", "target2")], indirect=True)
+async def test_shawshank_rating(target):
+    target1, target2 = target
+```
+
+# Clear before input
+
+```python
+await target.input("search_input", text="肖申克的救赎", clear=True)
+```
+
 # License
 [MIT License](LICENSE)
 
