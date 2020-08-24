@@ -13,7 +13,7 @@ async def query_rating(target: Pyppeteer, movie_or_book_name: str):
     # Into search results page
     target.switch_page("SearchResultsPage")
     # Click the first result
-    await target.click("result", custom_parameter=(1,))
+    await target.click("result", custom_parameter=1)
 
     # Into detail page
     target.switch_page("DetailPage")

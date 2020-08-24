@@ -188,6 +188,13 @@ details_item = '//*[@class="overview-info"]//div[@class="item-label"][contains(t
 await target.click("result", custom_parameter=(1,))
 ```
 
+If only one custom parameter:
+
+```python
+# Get the first result
+await target.click("result", custom_parameter=1)
+```
+
 ## One target
 Direct to use `target` in test script:
 

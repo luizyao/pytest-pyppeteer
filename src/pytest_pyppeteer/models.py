@@ -150,10 +150,12 @@ class Pyppeteer(BaseModel):
             assert False, "[{}] is missing in the {}.desc.".format(page_name, self.name)
 
     def _get_element_locator(
-        self, name: str, custom_parameter: tuple = ()
+        self, name: str, custom_parameter: Union[Tuple[Any], Any] = ()
     ) -> Tuple[str, str]:
         try:
             css_or_xpath, locator = self.page[name].__root__
+            if not isinstance(custom_parameter, tuple):
+                custom_parameter = (custom_parameter,)
             return css_or_xpath, locator.format(*custom_parameter)
         except KeyError:
             assert False, 'No such element("{}") in the page([{}]).'.format(
@@ -257,7 +259,7 @@ class Pyppeteer(BaseModel):
         visible: bool = True,
         hidden: bool = False,
         timeout: Union[float, int] = 30000,
-        custom_parameter: tuple = (),
+        custom_parameter: Union[Tuple[Any], Any] = (),
     ) -> Optional[ElementHandle]:
         css_or_xpath, locator = self._get_element_locator(elem_name, custom_parameter)
         await self.wait_for_css_or_xpath(
@@ -278,7 +280,7 @@ class Pyppeteer(BaseModel):
         clear: bool = False,
         delay: int = 0,
         timeout: Union[float, int] = 30000,
-        custom_parameter: tuple = (),
+        custom_parameter: Union[Tuple[Any], Any] = (),
     ) -> None:
         """Input ``text`` on the element which matches ``elem_name``.
 
@@ -317,7 +319,7 @@ class Pyppeteer(BaseModel):
         button: str = "left",
         click_count: int = 1,
         delay: Union[float, int] = 0,
-        custom_parameter: tuple = (),
+        custom_parameter: Union[Tuple[Any], Any] = (),
         timeout: Union[float, int] = 30000,
         dispose: bool = True,
     ) -> None:
@@ -360,7 +362,7 @@ class Pyppeteer(BaseModel):
     async def get_value(
         self,
         element: Union[str, ElementHandle],
-        custom_parameter: tuple = (),
+        custom_parameter: Union[Tuple[Any], Any] = (),
         timeout: Union[float, int] = 30000,
         dispose: bool = True,
     ) -> str:
@@ -392,7 +394,7 @@ class Pyppeteer(BaseModel):
     async def hover(
         self,
         element: Union[str, ElementHandle],
-        custom_parameter: tuple = (),
+        custom_parameter: Union[Tuple[Any], Any] = (),
         timeout: Union[float, int] = 30000,
         delay: Union[float, int] = 0,
         dispose: bool = True,
