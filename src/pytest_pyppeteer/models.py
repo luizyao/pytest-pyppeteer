@@ -218,7 +218,6 @@ class Pyppeteer(BaseModel):
         visible: bool = True,
         hidden: bool = False,
         timeout: Union[float, int] = 30000,
-        custom_parameter: tuple = (),
     ) -> Awaitable:
         """Wait until element which matches ``locator_string`` appears on page by ``xpath_or_css``.
 
@@ -236,7 +235,6 @@ class Pyppeteer(BaseModel):
                         properties. Defaults to ``False``.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
-        :param custom_parameter: The values used to replace "{}" in the locator.
         :return: Return awaitable object which resolves when element specified
                  by element name is added to DOM.
         """
