@@ -464,6 +464,43 @@ class Pyppeteer(BaseModel):
         """
         await self.tab.goto(url, timeout=timeout, waitUntil=wait_until)
 
+    async def screenshot(
+        self,
+        path: str = None,
+        type_: str = "png",
+        full_page: bool = False,
+        clip: Dict[str, int] = None,
+        omit_background: bool = False,
+        encoding: str = "binary",
+    ) -> Union[bytes, str]:
+        """Take a screenshot.
+
+        :param path: The file path to save the image to. The screenshot type
+                    will be inferred from the file extension.
+        :param type_: Specify screenshot type, can be either ``jpeg`` or
+                    ``png``. Defaults to ``png``.
+        :param full_page: When true, take a screenshot of the full scrollable
+                    page. Defaults to ``False``.
+        :param clip: An object which specifies clipping region of the page.
+                    This option should have the following fields:
+                        * ``x`` (int): x-coordinate of top-left corner of clip area.
+                        * ``y`` (int): y-coordinate of top-left corner of clip area.
+                        * ``width`` (int): width of clipping area.
+                        * ``height`` (int): height of clipping area.
+        :param omit_background: Hide default white background and allow capturing
+                    screenshot with transparency. Defaults to ``False``.
+        :param encoding: The encoding of the image, can be either ``'base64'`` or
+                    ``'binary'``. Defaults to ``'binary'``.
+        """
+        return await self.tab.screenshot(
+            options={"type": type_},
+            path=path,
+            fullPage=full_page,
+            clip=clip,
+            omitBackground=omit_background,
+            encoding=encoding,
+        )
+
     async def close(self) -> None:
         """Close browser.
 
