@@ -217,6 +217,12 @@ async def test_shawshank_rating(target):
 await target.input("search_input", text="The Shawshank Redemption", clear=True)
 ```
 
+## Screenshot
+
+```python
+await target.screenshot(Path(__file__).parent / "screenshot_binary.png")
+```
+
 # License
 [MIT License](LICENSE)
 
