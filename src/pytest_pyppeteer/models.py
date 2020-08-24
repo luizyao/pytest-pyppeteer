@@ -261,12 +261,7 @@ class Pyppeteer(BaseModel):
     ) -> Optional[ElementHandle]:
         css_or_xpath, locator = self._get_element_locator(elem_name, custom_parameter)
         await self.wait_for_css_or_xpath(
-            css_or_xpath,
-            locator,
-            visible=visible,
-            hidden=hidden,
-            timeout=timeout,
-            custom_parameter=custom_parameter,
+            css_or_xpath, locator, visible=visible, hidden=hidden, timeout=timeout
         )
 
         element: Optional[ElementHandle] = None
