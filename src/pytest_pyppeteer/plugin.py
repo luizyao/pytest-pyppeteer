@@ -6,19 +6,22 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import pytest
 import toml
 from _pytest import config as conf
-from _pytest.config import Config
+from _pytest.config import Config, PytestPluginManager
 from _pytest.fixtures import SubRequest
 from _pytest.main import Session
 from _pytest.nodes import Item
+from _pytest.runner import CallInfo, TestReport
+from pluggy.callers import _Result
 from pydantic import root_validator, FilePath
 
 from .models import Page, Pyppeteer, PyppeteerOptions, PyppeteerSettings
 from .utils import create_new_pyppeteer_project
 
 
-def _is_coroutine(obj: Any) -> bool:
-    """Check to see if an object is really an asyncio coroutine."""
-    return asyncio.iscoroutinefunction(obj) or inspect.isgeneratorfunction(obj)
+def pytest_addhooks(pluginmanager: PytestPluginManager):
+    from . import hooks
+
+    pluginmanager.add_hookspecs(hooks)
 
 
 def pytest_addoption(
@@ -64,6 +67,11 @@ def pytest_cmdline_main(config: conf.Config) -> Optional[Union[pytest.ExitCode, 
         return pytest.ExitCode.OK
 
 
+def _is_coroutine(obj: Any) -> bool:
+    """Check to see if an object is really an asyncio coroutine."""
+    return asyncio.iscoroutinefunction(obj) or inspect.isgeneratorfunction(obj)
+
+
 def add_asyncio_marker(item: Item) -> Item:
     if "asyncio" not in item.keywords and _is_coroutine(item.obj):
         item.add_marker(pytest.mark.asyncio)
@@ -84,8 +92,23 @@ def pytest_collection_modifyitems(session: Session, config: Config, items: List[
     items[:] = [add_asyncio_marker(item) for item in items]
 
 
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: Item, call: CallInfo[None]):
+    """Add `res_setup` `res_call` `res_teardown` attributes to `Item` to record test result.
+
+    :param Item item:
+    :param CallInfo[None] call: The `CallInfo` for the phase.
+    :return:
+    """
+    # Execute all other hooks to obtain the report object
+    outcome = yield  # type: _Result
+    res: TestReport = outcome.get_result()
+    # Set a report attribute for each phase of a call, which can be "setup", "call", "teardown"
+    setattr(item, f"res_{res.when}", res)
+
+
 @pytest.fixture(scope="session")
-def pyppeteer_settings(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
+def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     """The plugin use `[tool.pytest.pyppeteer]` as config item.
 
     :param pytestconfig: Session-scoped fixture that returns the `_pytest.config.Config` object.
@@ -133,12 +156,22 @@ def pyppeteer_settings(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     return targets
 
 
-@pytest.fixture(scope="session")
-def target(
-    request: SubRequest, pyppeteer_settings: Dict[str, Pyppeteer]
+@pytest.fixture
+async def target(
+    request: SubRequest, pytestconfig: conf.Config, target_factory: Dict[str, Pyppeteer]
 ) -> Union[Pyppeteer, Tuple[Pyppeteer]]:
-    target_name: Union[str, Tuple[str], List[str]] = request.param
-    if isinstance(target_name, (Tuple, List)):
-        return tuple([pyppeteer_settings[name] for name in target_name])
-    else:
-        return pyppeteer_settings[target_name]
+    targets_name = (request.param,) if isinstance(request.param, str) else request.param
+    targets_used: Tuple[Pyppeteer] = tuple(
+        target_factory[name] for name in targets_name
+    )
+    setattr(request.node, "targets", dict(zip(targets_name, targets_used)))
+
+    await asyncio.gather(
+        *pytestconfig.hook.pytest_pyppeteer_targets_setup(item=request.node)
+    )
+
+    yield targets_used[0] if len(targets_used) == 1 else targets_used
+
+    await asyncio.gather(
+        *pytestconfig.hook.pytest_pyppeteer_targets_teardown(item=request.node)
+    )
