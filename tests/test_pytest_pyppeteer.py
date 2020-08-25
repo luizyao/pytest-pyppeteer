@@ -6,7 +6,6 @@ from pytest_pyppeteer.models import Pyppeteer
 
 
 async def query_rating(target: Pyppeteer, movie_or_book_name: str):
-    await target.open(goto_base_url=True)
     await target.input("search_input", text=movie_or_book_name)
     await target.click("search_apply")
 
@@ -18,7 +17,6 @@ async def query_rating(target: Pyppeteer, movie_or_book_name: str):
     # Into detail page
     target.switch_page("DetailPage")
     rating: str = await target.get_value("rating")
-    await target.close()
     return rating
 
 
