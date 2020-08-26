@@ -155,7 +155,9 @@ async def test_shawshank_rating(target):
 
 # Usage
 
-## `CSS` selector
+## Locator
+
+### `CSS` selector
 
 ```toml
 [SearchResultsPage]
@@ -164,7 +166,7 @@ async def test_shawshank_rating(target):
 result = '#root > div > div > div > div > div:nth-child({}) > div.item-root a.cover-link'
 ```
 
-## `XPath`
+### `XPath`
 
 ```toml
 [SearchResultsPage]
@@ -181,7 +183,7 @@ details_item = '//*[@class="overview-info"]//div[@class="item-label"][contains(t
 
 > CSS doesn't support content selector, refer to <https://www.w3.org/TR/selectors-3/#content-selectors>
 
-## Replace `{}` with custom parameter:
+### Replace `{}` with custom parameter:
 
 ```python
 # Get the first result
@@ -195,7 +197,9 @@ If only one custom parameter:
 await target.click("result", custom_parameter=1)
 ```
 
-## One target
+## Target
+
+### One target
 Direct to use `target` in test script:
 
 ```python
@@ -204,7 +208,7 @@ async def test_001(target: Pyppeteer):
     await target.open(goto_base_url=True)
 ```
 
-## Multiple targets
+### Multiple targets
 ```python
 @pytest.mark.parametrize("target", [("target1", "target2")], indirect=True)
 async def test_shawshank_rating(target):
@@ -223,6 +227,58 @@ await target.input("search_input", text="The Shawshank Redemption", clear=True)
 await target.screenshot(Path(__file__).parent / "screenshot_binary.png")
 ```
 
+## Hooks
+
+### `pytest_pyppeteer_targets_setup`
+Called to setup target before execute a test item.
+
+e.g. Open browser and goto base url.
+
+```python
+async def pytest_pyppeteer_targets_setup(item: Item) -> None:
+    targets: Dict[str, Pyppeteer] = item.targets  # type: ignore
+
+    async def setup(target: Pyppeteer):
+        await target.open(goto_base_url=True)
+
+    await asyncio.gather(*map(setup, targets.values()))
+```
+
+### `pytest_pyppeteer_targets_teardown`
+Called to teardown target after execute a test item.
+
+e.g. Take a screenshot for all target used when test failed.
+
+```python
+async def pytest_pyppeteer_targets_teardown(item: Item) -> None:
+    targets: Dict[str, Pyppeteer] = item.targets  # type: ignore
+
+    async def teardown(name: str, target: Pyppeteer):
+        if item.res_call.failed:
+            await asyncio.sleep(1)
+            screenshot_base64 = await target.screenshot(type_="png", encoding="base64")
+            allure.attach(
+                base64.b64decode(screenshot_base64),
+                name=name,
+                attachment_type=allure.attachment_type.PNG,
+            )
+
+    await asyncio.gather(*[teardown(name, target) for name, target in targets.items()])
+```
+
+### `pytest_pyppeteer_all_targets_teardown`
+Called to teardown all targets after execute all test items.
+
+e.g. Make sure to close all targets.
+
+```python
+async def pytest_pyppeteer_all_targets_teardown(targets: Pyppeteer) -> None:
+    async def teardown(target: Pyppeteer):
+        await target.close()
+
+    await asyncio.gather(*map(teardown, targets))
+```
+
 # License
 [MIT License](LICENSE)
 
@@ -234,7 +290,7 @@ await target.screenshot(Path(__file__).parent / "screenshot_binary.png")
 ### Added
 
 - ✨ add target.hover function [[c0fe87e](https://github.com/luizyao/pytest-pyppeteer/commit/c0fe87ee73d903072cb8d4c79592fdd3633bd3c8)]
- 
+
 ### Fixed
 
 - 🐛 fix issue [#4](https://github.com/luizyao/pytest-pyppeteer/issues/4) [[f2af677](https://github.com/luizyao/pytest-pyppeteer/commit/f2af6776ed02f56fb0fed1798d61d0c46a9202e2)]
