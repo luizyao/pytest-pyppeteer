@@ -22,6 +22,12 @@ async def pytest_pyppeteer_targets_teardown(item: Item) -> None:
         if item.res_call.failed:
             await asyncio.sleep(2)
             await target.screenshot(path=Path(__file__).parent / "{}.png".format(name))
-        await target.close()
 
     await asyncio.gather(*[teardown(name, target) for name, target in targets.items()])
+
+
+async def pytest_pyppeteer_all_targets_teardown(targets: Pyppeteer) -> None:
+    async def teardown(target: Pyppeteer):
+        await target.close()
+
+    await asyncio.gather(*map(teardown, targets))

@@ -123,6 +123,7 @@ class Pyppeteer(BaseModel):
     parameters: Optional[PyppeteerSettings] = None
     browser: Optional[Browser] = None
     tab: Optional[Tab] = None
+    tabs: List[Tab] = list()
 
     class Config:
         arbitrary_types_allowed = True
@@ -136,11 +137,24 @@ class Pyppeteer(BaseModel):
         """
         if self.browser is None:
             self.browser = await launch(options=self.options.dict(exclude_none=True))
-        self.tab = await self.browser.newPage()
-        self.tab.setDefaultNavigationTimeout(self.parameters.default_navigation_timeout)
+            self.tabs = await self.browser.pages()
+        try:
+            self.tab = self.tabs[0]
+            self.tab.setDefaultNavigationTimeout(
+                self.parameters.default_navigation_timeout
+            )
+        except IndexError:
+            await self.new_page()
         if goto_base_url:
             await self.goto(self.base_url)
             self.switch_page("HomePage")
+
+    async def new_page(self):
+        if self.browser is None:
+            raise ValueError("Open a browser first.")
+        self.tab = await self.browser.newPage()
+        self.tab.setDefaultNavigationTimeout(self.parameters.default_navigation_timeout)
+        self.tabs.append(self.tab)
 
     def switch_page(self, page_name: str) -> None:
         try:

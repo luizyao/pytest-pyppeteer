@@ -108,7 +108,7 @@ def pytest_runtest_makereport(item: Item, call: CallInfo[None]):
 
 
 @pytest.fixture(scope="session")
-def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
+async def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     """The plugin use `[tool.pytest.pyppeteer]` as config item.
 
     :param pytestconfig: Session-scoped fixture that returns the `_pytest.config.Config` object.
@@ -153,7 +153,13 @@ def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     targets = {
         k: Target.parse_obj(v) for k, v in targets_settings.items() if v.get("name", "")
     }
-    return targets
+    yield targets
+
+    await asyncio.gather(
+        *pytestconfig.hook.pytest_pyppeteer_all_targets_teardown(
+            targets=targets.values()
+        )
+    )
 
 
 @pytest.fixture
@@ -175,3 +181,14 @@ async def target(
     await asyncio.gather(
         *pytestconfig.hook.pytest_pyppeteer_targets_teardown(item=request.node)
     )
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """
+    Create an instance of the default event loop for each test case.
+    @return:
+    """
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
