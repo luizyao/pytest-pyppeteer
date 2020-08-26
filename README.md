@@ -284,7 +284,19 @@ async def pytest_pyppeteer_all_targets_teardown(targets: Pyppeteer) -> None:
 
 # Changelog
 
+## 0.1.2 (2020-08-26)
+
+### Added
+
+- ✨ support for the same target sharing the same browser instance throughout the test session [[5e51d75](https://github.com/luizyao/pytest-pyppeteer/commit/5e51d757ef6207a901683335d332dcfe5ebb2dc3)]
+- ✨ add screenshot function [[310f848](https://github.com/luizyao/pytest-pyppeteer/commit/310f848fa7abc97e90daaded3cb4342f291dcb86)]
+
+### Fixed
+
+- 🐛 fix issue [#6](https://github.com/luizyao/pytest-pyppeteer/issues/6) [[5d1f6af](https://github.com/luizyao/pytest-pyppeteer/commit/5d1f6afe8cebff37e0aec395f3c38539fb24e2eb)]
+
 <a name="0.1.1"></a>
+
 ## 0.1.1 (2020-08-22)
 
 ### Added

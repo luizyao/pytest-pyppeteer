@@ -1,5 +1,37 @@
 # Changelog
 
+<a name="0.1.2"></a>
+## 0.1.2 (2020-08-26)
+
+### Added
+
+- ✨ support for the same target sharing the same browser instance throughout the test session [[5e51d75](https://github.com/luizyao/pytest-pyppeteer/commit/5e51d757ef6207a901683335d332dcfe5ebb2dc3)]
+- ✅ add conftest.py file [[7527635](https://github.com/luizyao/pytest-pyppeteer/commit/752763516ef0f4fd0c4d01b3fde4c891a7912a2a)]
+- ✨ add hooks file [[04c41be](https://github.com/luizyao/pytest-pyppeteer/commit/04c41be7fe919fdbb7a9f62dd88fd581bcaefae9)]
+- ✅ update tests [[526ff5e](https://github.com/luizyao/pytest-pyppeteer/commit/526ff5ec85aa58b147f41c8e888ed258836b4aae)]
+- ✨ add hooks and add attributes for item [[afcfc0c](https://github.com/luizyao/pytest-pyppeteer/commit/afcfc0cb66e84bc78b8d49f06a38fd4058232b67)]
+- ✨ add screenshot function [[310f848](https://github.com/luizyao/pytest-pyppeteer/commit/310f848fa7abc97e90daaded3cb4342f291dcb86)]
+
+### Changed
+
+- 🍱 compress gif image [[fbf7c70](https://github.com/luizyao/pytest-pyppeteer/commit/fbf7c70bf515c3da337fc83ed02c54e2219296d5)]
+
+### Fixed
+
+- 🐛 fix issue [#6](https://github.com/luizyao/pytest-pyppeteer/issues/6) [[5d1f6af](https://github.com/luizyao/pytest-pyppeteer/commit/5d1f6afe8cebff37e0aec395f3c38539fb24e2eb)]
+
+### Miscellaneous
+
+- 📝 add hooks guide [[3eacd91](https://github.com/luizyao/pytest-pyppeteer/commit/3eacd913407a5bc43f5ab1bbda0e25da88baed5c)]
+- 💡 fix comment express typos [[9cf5efb](https://github.com/luizyao/pytest-pyppeteer/commit/9cf5efb266c762e51e535e36e2d8434db5888905)]
+- 📝 add screenshot guide [[76dde75](https://github.com/luizyao/pytest-pyppeteer/commit/76dde7573bb9df9ae40f347afe0aadaff779272f)]
+- 🗑️ remove invalid parameter [[080d9df](https://github.com/luizyao/pytest-pyppeteer/commit/080d9df0bb7dcf626ff6eae97656ee9994d3f320)]
+- 🗑️ remove unused parameter [[7a657cc](https://github.com/luizyao/pytest-pyppeteer/commit/7a657cc4a1ee341308ce2bd82820fd433dd3a89f)]
+- 📝 update README.md [[34769a8](https://github.com/luizyao/pytest-pyppeteer/commit/34769a8ac7f5581f453495f94ccd25dcc3dc7642)]
+- 📝 fix toc typos [[a340545](https://github.com/luizyao/pytest-pyppeteer/commit/a34054520a2c5589fcf03aa530346a1455e55528)]
+- 📝 add usage guide [[2cedde0](https://github.com/luizyao/pytest-pyppeteer/commit/2cedde0c6f3b34476dee52d621dce98c6c7fec40)]
+
+
 <a name="0.1.1"></a>
 ## 0.1.1 (2020-08-22)
 
