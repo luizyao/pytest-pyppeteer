@@ -2,6 +2,7 @@
 How to model a page?
 """
 import asyncio
+from functools import partial
 from typing import List, Dict, Any, Union, Optional, Tuple, Awaitable
 
 import cssselect
@@ -287,6 +288,26 @@ class Pyppeteer(BaseModel):
             element = (await self.tab.xpath(expression=locator))[0]
         return element
 
+    async def query_elements(
+        self,
+        elem_name: str,
+        visible: bool = True,
+        hidden: bool = False,
+        timeout: Union[float, int] = 30000,
+        custom_parameter: Union[Tuple[Any], Any] = (),
+    ) -> List[Optional[ElementHandle]]:
+        css_or_xpath, locator = self._get_element_locator(elem_name, custom_parameter)
+        await self.wait_for_css_or_xpath(
+            css_or_xpath, locator, visible=visible, hidden=hidden, timeout=timeout
+        )
+
+        elements: List[Optional[ElementHandle]] = list()
+        if css_or_xpath.lower() == "css":
+            elements = await self.tab.querySelectorAll(selector=locator)
+        elif css_or_xpath.lower() == "xpath":
+            elements = await self.tab.xpath(expression=locator)
+        return elements
+
     async def input(
         self,
         element: Union[str, ElementHandle],
@@ -404,6 +425,39 @@ class Pyppeteer(BaseModel):
         if dispose:
             await element.dispose()
         return value.strip()
+
+    async def get_values(
+        self,
+        element_name: str,
+        custom_parameter: Union[Tuple[Any], Any] = (),
+        timeout: Union[float, int] = 30000,
+        dispose: bool = True,
+    ) -> List[str]:
+        """Get value of each element found by ``element_name``.
+
+        This method raises error if no element matched the ``elem_name``.
+
+        :param element_name: Element name
+        :param custom_parameter: The values used to replace "{}" in the locator.
+        :param timeout: Maximum time to wait for searching element in milliseconds.
+                        Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
+        :param dispose: Whether to dispose element handler.
+        :return:
+        """
+        elements: List[ElementHandle] = await self.query_elements(
+            element_name,
+            visible=True,
+            timeout=timeout,
+            custom_parameter=custom_parameter,
+        )
+        get_element_value = partial(
+            self.get_value,
+            custom_parameter=custom_parameter,
+            timeout=timeout,
+            dispose=dispose,
+        )
+        values: List[str] = await asyncio.gather(*map(get_element_value, elements))
+        return values
 
     async def hover(
         self,
