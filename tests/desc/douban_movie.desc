@@ -3,6 +3,8 @@
 search_input = '#inp-query'
 search_apply = '.inp-btn > input:nth-child(1)'
 
+weekly_reputation_list = '#billboard table a'
+
 [SearchResultsPage]
 # {} indicates that this part can be replaced by the custom parameter
 # Selector
