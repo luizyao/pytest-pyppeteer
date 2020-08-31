@@ -353,10 +353,11 @@ class Pyppeteer(BaseModel):
         element: Union[str, ElementHandle],
         button: str = "left",
         click_count: int = 1,
-        delay: Union[float, int] = 0,
+        hold: Union[float, int] = 0,
         custom_parameter: Union[Tuple[Any], Any] = (),
         timeout: Union[float, int] = 30000,
         dispose: bool = True,
+        delay: Union[float, int] = 0,
     ) -> None:
         """Click element which matches ``elem_name`` or ``element``.
 
@@ -376,11 +377,12 @@ class Pyppeteer(BaseModel):
         :param element: Element name or an element.
         :param button: ``left``, ``right``, or ``middle``. Defaults to ``left``.
         :param click_count: Defaults to 1.
-        :param delay: Time to wait between ``mousedown`` and ``mouseup`` in milliseconds. Defaults to 0.
+        :param hold: Time to wait between ``mousedown`` and ``mouseup`` in milliseconds. Defaults to 0.
         :param custom_parameter: The values used to replace "{}" in the locator.
         :param timeout: Maximum time to wait for searching element in milliseconds.
                         Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
         :param dispose: Whether to dispose element handler.
+        :param delay: Time to wait between find and click elements in milliseconds. Defaults to 0.
         :return: None
         """
         if isinstance(element, str):
@@ -390,7 +392,8 @@ class Pyppeteer(BaseModel):
                 timeout=timeout,
                 custom_parameter=custom_parameter,
             )
-        await element.click(clickCount=click_count, button=button, delay=delay)
+        await asyncio.sleep(delay / 1000.0)
+        await element.click(clickCount=click_count, button=button, delay=hold)
         if dispose:
             await element.dispose()
 
