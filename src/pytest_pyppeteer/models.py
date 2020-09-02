@@ -339,6 +339,8 @@ class Pyppeteer(BaseModel):
             value = await self.get_value(element, dispose=False)
             if value:
                 await self.click(element, dispose=False)
+                for _ in value:
+                    await self.tab.keyboard.press("ArrowRight")
                 await self.tab.keyboard.down("Shift")
                 for _ in value:
                     await self.tab.keyboard.press("ArrowLeft")
