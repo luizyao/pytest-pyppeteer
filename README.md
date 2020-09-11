@@ -284,6 +284,17 @@ async def pytest_pyppeteer_all_targets_teardown(targets: Pyppeteer) -> None:
 
 # Changelog
 
+## 0.1.3 (2020-09-02)
+
+### Added
+
+- ✨ support to get the inner text or value of each element in a list one time [[9dae46b](https://github.com/luizyao/pytest-pyppeteer/commit/9dae46b6806754e5f4ec9b88412010e03e2f2f0a)]
+
+### Fixed
+
+- 🐛 fix issue [#13](https://github.com/luizyao/pytest-pyppeteer/issues/13) [[acac197](https://github.com/luizyao/pytest-pyppeteer/commit/acac197fc02b1c2e66de0ccd09dbe38e70d4c80d)]
+- 🐛 support to wait a time between find and click element. [[0baa9d2](https://github.com/luizyao/pytest-pyppeteer/commit/0baa9d2578e22428e9138939f57b835315b91c5b)]
+
 ## 0.1.2 (2020-08-26)
 
 ### Added
