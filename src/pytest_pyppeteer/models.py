@@ -3,11 +3,11 @@ How to model a page?
 """
 import asyncio
 from functools import partial
-from typing import List, Dict, Any, Union, Optional, Tuple, Awaitable
+from typing import Any, Awaitable, Dict, List, Optional, Tuple, Union
 
 import cssselect
 from lxml import etree
-from pydantic import BaseModel, root_validator, FilePath, HttpUrl
+from pydantic import BaseModel, FilePath, HttpUrl, root_validator
 from pyppeteer import launch
 from pyppeteer.browser import Browser
 from pyppeteer.element_handle import ElementHandle

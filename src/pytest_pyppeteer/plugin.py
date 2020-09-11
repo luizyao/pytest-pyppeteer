@@ -12,7 +12,7 @@ from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.runner import CallInfo, TestReport
 from pluggy.callers import _Result
-from pydantic import root_validator, FilePath
+from pydantic import FilePath, root_validator
 
 from .models import Page, Pyppeteer, PyppeteerOptions, PyppeteerSettings
 from .utils import create_new_pyppeteer_project
