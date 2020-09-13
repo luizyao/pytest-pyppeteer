@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 
 from _pytest.nodes import Item
+
 from pytest_pyppeteer.models import Pyppeteer
 
 

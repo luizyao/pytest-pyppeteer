@@ -2,6 +2,7 @@ import asyncio
 from functools import partial
 
 import pytest
+
 from pytest_pyppeteer.models import Pyppeteer
 
 
