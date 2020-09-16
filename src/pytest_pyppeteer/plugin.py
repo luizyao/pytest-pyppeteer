@@ -119,6 +119,8 @@ async def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     assert settings, '[tool.pytest.pyppeteer] is missing in "pyproject.toml".'
 
     class Target(Pyppeteer):
+        kwargs: Dict = dict()
+
         @root_validator(pre=True)
         def merge_custom_parameters(cls, values: Dict[str, Any]) -> Dict[str, Any]:
             name: str = values.get("name")
