@@ -266,6 +266,28 @@ async def pytest_pyppeteer_targets_teardown(item: Item) -> None:
     await asyncio.gather(*[teardown(name, target) for name, target in targets.items()])
 ```
 
+### `pytest_pyppeteer_all_targets_setup`
+Called to setup all targets before execute all test items.
+
+e.g. Add allure environment parameters.
+
+```python
+async def pytest_pyppeteer_all_targets_setup(targets: Pyppeteer) -> None:
+    environment = etree.Element("environment")
+    await targets[0].open()
+    browser_version = await target.browser.version()
+    await targets[0].close
+
+    parameter = etree.SubElement(environment, "parameter")
+    key = etree.SubElement(parameter, "key")
+    key.text = f"Browser Version"
+    value = etree.SubElement(parameter, "value")
+    value.text = browser_version
+
+    with open(Path(__file__).parent / "allure_results" / "environment.xml", "w") as f:
+        f.write(etree.tounicode(environment, pretty_print=True))
+```
+
 ### `pytest_pyppeteer_all_targets_teardown`
 Called to teardown all targets after execute all test items.
 

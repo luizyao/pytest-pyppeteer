@@ -153,6 +153,11 @@ async def target_factory(pytestconfig: conf.Config) -> Dict[str, Pyppeteer]:
     targets = {
         k: Target.parse_obj(v) for k, v in targets_settings.items() if v.get("name", "")
     }
+
+    await asyncio.gather(
+        *pytestconfig.hook.pytest_pyppeteer_all_targets_setup(targets=targets.values())
+    )
+
     yield targets
 
     await asyncio.gather(
