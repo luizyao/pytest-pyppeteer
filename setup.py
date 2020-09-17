@@ -13,7 +13,7 @@ with Path("README.md").open(mode="r", encoding="utf-8") as readme_md:
 
 setup(
     name="pytest-pyppeteer",
-    version="0.1.3",
+    version="0.1.4",
     author="Luiz Yao",
     author_email="yaomeng614@gmail.com",
     description="Plugin for running pyppeteer in pytest.",

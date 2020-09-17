@@ -1,5 +1,19 @@
 # Changelog
 
+<a name="0.1.4"></a>
+## 0.1.4 (2020-09-16)
+
+### Added
+
+- ✨ support to record some information on target. [[a1da6f5](https://github.com/luizyao/pytest-pyppeteer/commit/a1da6f51ed6e76893fe378fb2876e726a221bce3)]
+- ✨ support setup function before execute all test cases. [[4f3c49b](https://github.com/luizyao/pytest-pyppeteer/commit/4f3c49b49454aa6f6dd82cd35407007cbbec4c10)]
+
+### Changed
+
+- 🎨 sort imports [[82e683b](https://github.com/luizyao/pytest-pyppeteer/commit/82e683b08e69c1af006c6ec1dfd55dd91381bb78)]
+- 🎨 sort imports [[4de117b](https://github.com/luizyao/pytest-pyppeteer/commit/4de117b7e7d6aeac0c269f7daaa29241c2fc1255)]
+
+
 <a name="0.1.3"></a>
 ## 0.1.3 (2020-09-02)
 

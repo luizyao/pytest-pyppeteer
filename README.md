@@ -306,6 +306,14 @@ async def pytest_pyppeteer_all_targets_teardown(targets: Pyppeteer) -> None:
 
 # Changelog
 
+## 0.1.4 (2020-09-16)
+
+### Added
+
+- ✨ support to record some information on target. [[a1da6f5](https://github.com/luizyao/pytest-pyppeteer/commit/a1da6f51ed6e76893fe378fb2876e726a221bce3)]
+- ✨ support setup function before execute all test cases. [[4f3c49b](https://github.com/luizyao/pytest-pyppeteer/commit/4f3c49b49454aa6f6dd82cd35407007cbbec4c10)]
+
+
 ## 0.1.3 (2020-09-02)
 
 ### Added
