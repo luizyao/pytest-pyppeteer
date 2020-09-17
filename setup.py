@@ -4,12 +4,12 @@ from pkg_resources import parse_requirements
 from setuptools import find_packages, setup
 
 with Path("requirements.txt").open(mode="r") as requirements_txt:
-    install_requires = [
+    install_requirements = [
         str(requirement) for requirement in parse_requirements(requirements_txt)
     ]
 
-with Path("README.md").open(mode="r", encoding="utf-8") as readme_md:
-    long_description = readme_md.read()
+with Path("README.md").open(mode="r", encoding="utf-8") as readme:
+    long_description = readme.read()
 
 setup(
     name="pytest-pyppeteer",
@@ -38,11 +38,9 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Operating System :: OS Independent",
         "License :: OSI Approved :: MIT License",
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.6",
-    install_requires=install_requires,
+    install_requires=install_requirements,
 )
