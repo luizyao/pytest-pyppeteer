@@ -1,0 +1,10 @@
+site_name: pytest-pyppeteer
+site_description: A plugin to run pyppeteer in pytest.
+site_author: Yao Meng
+
+theme: readthedocs
+
+repo_url: https://github.com/luizyao/pytest-pyppeteer
+
+pages:
+  - Home: index.md
