@@ -3,8 +3,8 @@ from pathlib import Path
 from pkg_resources import parse_requirements
 from setuptools import find_packages, setup
 
-with Path("requirements.txt").open(mode="r") as requirements_txt:
-    install_requirements = [
+with Path("requirements.txt").open(mode="r", encoding="utf-8") as requirements_txt:
+    install_requires = [
         str(requirement) for requirement in parse_requirements(requirements_txt)
     ]
 
@@ -42,5 +42,5 @@ setup(
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.6",
-    install_requires=install_requirements,
+    install_requires=install_requires,
 )

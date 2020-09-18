@@ -4,10 +4,14 @@ url = "https://mirrors.aliyun.com/pypi/simple/"
 verify_ssl = true
 
 [dev-packages]
+pytest-pyppeteer = {editable = true,path = "."}
+sphinx-rtd-theme = "*"
+sphinx = "*"
 
 [packages]
 pytest = "*"
 pyppeteer = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.8"
