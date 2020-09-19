@@ -1,12 +1,6 @@
 from pathlib import Path
 
-from pkg_resources import parse_requirements
 from setuptools import find_packages, setup
-
-with Path("requirements.txt").open(mode="r", encoding="utf-8") as requirements_txt:
-    install_requires = [
-        str(requirement) for requirement in parse_requirements(requirements_txt)
-    ]
 
 with Path("README.md").open(mode="r", encoding="utf-8") as readme:
     long_description = readme.read()
@@ -42,5 +36,5 @@ setup(
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.6",
-    install_requires=install_requires,
+    install_requires=["pyppeteer==0.2.2", "pytest-asyncio==0.14.0", "pytest==6.0.2"],
 )

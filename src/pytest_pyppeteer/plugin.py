@@ -26,6 +26,8 @@ def pytest_collection_modifyitems(items: List["Item"]) -> None:
 def add_asyncio_marker(item: "Item") -> "pytest.Item":
     """Add `pytest.mark.asyncio`_ marker to the specified item.
 
+    If the marker is already exists, return the item directly.
+
     :param pytest.Item item: The pytest item object.
     :return: The marked item object.
 

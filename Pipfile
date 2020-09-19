@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 pytest-pyppeteer = {editable = true,path = "."}
 sphinx-rtd-theme = "*"
-sphinx = "*"
 
 [packages]
 pytest = "*"
