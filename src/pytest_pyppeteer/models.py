@@ -7,10 +7,10 @@ from pytest_pyppeteer.errors import PathNotAExecutableError
 
 
 class Options(BaseSettings):
-    """The options of Chrome launcher."""
+    """The options settings of Chrome launcher."""
 
     #: Path to a Chromium or Chrome executable.
-    executablePath: Optional[str] = ...
+    executablePath: Optional[str]
 
     #: Whether to run browser in headless mode. Defaults to ``False``.
     headless: bool = False
@@ -20,7 +20,7 @@ class Options(BaseSettings):
 
     @validator("executablePath", pre=True)
     def executable_must_existed(cls, path: Optional[str]) -> Optional[str]:
-        """Validate that the executable must existed.
+        """Validate that the ``executablePath`` must be existed if it's not ``None``.
 
         :param str path: path string.
         :return: path string.
