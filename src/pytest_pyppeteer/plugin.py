@@ -127,9 +127,9 @@ def executable_path(request: "FixtureRequest") -> Optional[str]:
 
     2. If Chrome(not Chromium) is installed in default location, return it. Now only
        support ``win64``, ``win32`` and ``mac`` platform.
-    
+
     3. Return ``None``. In this case, pyppeteer will downloads the recent
-       version Chromium when called in the first time. If you don’t prefer this
+       version Chromium when called in the first time. If you don't prefer this
        behavior, you can overwrite this fixture to specify another executable
        path string.
 
