@@ -64,7 +64,6 @@ add_module_names = False
 pygments_style = "sphinx"
 
 intersphinx_mapping = {
-    "pytest": ("https://docs.pytest.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
 }
 

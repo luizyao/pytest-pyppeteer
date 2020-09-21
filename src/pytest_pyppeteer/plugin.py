@@ -4,17 +4,14 @@ import logging
 from typing import TYPE_CHECKING, Any, List, Optional
 
 import pytest
+from pyppeteer import launch
 
-from pytest_pyppeteer.errors import PathNotAExecutableError
-from pytest_pyppeteer.utils import (
-    CHROME_EXECUTABLE,
-    current_platform,
-    existed_executable,
-)
+from pytest_pyppeteer.models import Options
+from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
+    from _pytest.config import Config
     from _pytest.config.argparsing import Parser
-    from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Item
 
 LOGGER = logging.getLogger(__name__)
@@ -77,6 +74,8 @@ def pytest_addoption(parser: "Parser") -> None:
 
     * ``--executable-path``: path to a Chromium or Chrome executable.
 
+    * ``--headless``: run browser in headless mode.
+
     :param _pytest.config.argparsing.Parser parser: parser for command
            line arguments and ini-file values.
     :return: None
@@ -110,28 +109,29 @@ def pytest_addoption(parser: "Parser") -> None:
     # Create a option group named "pyppeteer"
     group = parser.getgroup("pyppeteer", description="pyppeteer")
     group.addoption(
-        "--executable-path",
-        type=existed_executable,
-        help="path to a Chromium or Chrome executable.",
+        "--executable-path", help="path to a Chromium or Chrome executable."
+    )
+
+    group.addoption(
+        "--headless", action="store_true", help="run browser in headless mode."
     )
 
 
 @pytest.fixture(scope="session")
-def executable_path(request: "FixtureRequest") -> Optional[str]:
+def executable_path(pytestconfig: "Config") -> Optional[str]:
     """``Session-scoped fixture`` that return Chrome or Chromium executable path.
 
     The fixture behaviors follow this procedure:
 
-    1. Retrieve the value passed in from command line option of `--executable-path`.
-       if the value is not ``None``, return it.
+    1. Return the value passed in from command line option of `--executable-path`,
+       if it's not ``None``.
 
-    2. If Chrome(not Chromium) is installed in default location, return it. Now only
-       support ``win64``, ``win32`` and ``mac`` platform.
+    2. Return the default installation location of Chrome in current platform,
+       but now only support ``win64``, ``win32`` and ``mac`` platform.
 
-    3. Return ``None``. In this case, pyppeteer will downloads the recent
-       version Chromium when called in the first time. If you don't prefer this
-       behavior, you can overwrite this fixture to specify another executable
-       path string.
+       For other platforms, pyppeteer will downloads the recent version of Chromium
+       when called first time. If you don't prefer this behavior, you can specify
+       an exact path by overwrite this fixture:
 
        Example::
 
@@ -141,36 +141,32 @@ def executable_path(request: "FixtureRequest") -> Optional[str]:
                    return "path/to/Chrome/or/Chromium"
                return executable_path
 
-    :param _pytest.fixtures.FixtureRequest request: a fixture providing
-           information of the requesting test function.
-    :return: Chrome or Chromium executable path string.
+
+    :param _pytest.config.Config pytestconfig: a session-scoped fixture that return
+           config object.
+    :return: return Chrome or Chromium executable path string. but if current platform
+             isn't supported, return ``None``.
     """
-    path = request.config.getoption("--executable-path")
+    path = pytestconfig.getoption("--executable-path")
     if path:
-        LOGGER.info(
-            'User-specified Chrome or Chromium executable path "{}"'.format(path)
-        )
         return path
 
     try:
-        platform = current_platform()
+        return CHROME_EXECUTABLE[current_platform()]
     except OSError as e:
         # Unsupported platform
-        LOGGER.error(e.args[0])
+        LOGGER.error(e)
         return None
-    else:
-        LOGGER.info('Current platform is "{}"'.format(platform))
 
-    default_path = CHROME_EXECUTABLE[platform]
-    try:
-        path = existed_executable(default_path)
-    except PathNotAExecutableError:
-        LOGGER.info(
-            'Chrome is not installed or not installed in the default path "{}".'.format(
-                default_path
-            )
-        )
-        return None
-    else:
-        LOGGER.info('Find the Chrome executable in the path: "{}"'.format(path))
-        return path
+
+@pytest.fixture(scope="session")
+def session_options(pytestconfig: "Config", executable_path: str) -> Options:
+    headless: bool = pytestconfig.getoption("--headless")
+    return Options(executablePath=executable_path, headless=headless)
+
+
+@pytest.fixture
+async def pyppeteer(session_options: Options):
+    browser = await launch(options=session_options.dict())
+    yield browser
+    await browser.close()

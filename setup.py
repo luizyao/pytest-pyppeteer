@@ -36,5 +36,10 @@ setup(
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.6",
-    install_requires=["pyppeteer==0.2.2", "pytest-asyncio==0.14.0", "pytest==6.0.2"],
+    install_requires=[
+        "pyppeteer==0.2.2",
+        "pytest-asyncio==0.14.0",
+        "pytest==6.0.2",
+        "pydantic==1.6.1",
+    ],
 )

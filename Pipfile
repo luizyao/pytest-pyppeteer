@@ -11,6 +11,7 @@ sphinx-rtd-theme = "*"
 pytest = "*"
 pyppeteer = "*"
 pytest-asyncio = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.8"

@@ -10,22 +10,6 @@ CHROME_EXECUTABLE = {
 }
 
 
-def existed_executable(path: str) -> str:
-    """Filter the path which does not point to a executable file.
-
-    The behaviors used in this plugin:
-
-    * Called once the ``--executable-path`` option passed in from the command line.
-
-    :param str path: a path string.
-    :return: the path string point to the executable.
-    :raise PathNotAExecutableError: if path does not point to a executable file.
-    """
-    if not (os.path.isfile(path) and os.access(path, os.X_OK)):
-        raise PathNotAExecutableError(path=os.path.abspath(path))
-    return path
-
-
 def current_platform() -> str:
     """Return current platform name.
 
