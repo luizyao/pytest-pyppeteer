@@ -1,7 +1,4 @@
-import os
 import sys
-
-from pytest_pyppeteer.errors import PathNotAExecutableError
 
 CHROME_EXECUTABLE = {
     "mac": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",

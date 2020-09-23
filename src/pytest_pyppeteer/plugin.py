@@ -1,20 +1,45 @@
 import asyncio
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, List, Optional
 
 import pytest
 from pyppeteer import launch
 
-from pytest_pyppeteer.models import Options
+from pytest_pyppeteer.models import Options, ViewPort
 from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
     from _pytest.config import Config
     from _pytest.config.argparsing import Parser
+    from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Item
+    from pyppeteer.browser import Browser
 
 LOGGER = logging.getLogger(__name__)
+
+
+def pytest_configure(config: "Config") -> None:
+    """Perform initial configuration as follows:
+
+    * Add ``pytest.mark.option`` marker to the ini-file option.
+
+    :param _pyest.config.Config config: pytest config object.
+    :return: None
+
+    .. note::
+
+        This is a ``pytest hook function`` which is called for
+        every plugin and initial conftest file after command
+        line options have been parsed. After that, the hook
+        is called for other conftest files as they are imported.
+    """
+    config.addinivalue_line(
+        "markers",
+        "options(kwargs): add or change existing options. "
+        "specify options as keyword argument, e.g. "
+        "@pytest.mark.options(devtools=True)",
+    )
 
 
 @pytest.mark.tryfirst
@@ -32,8 +57,8 @@ def pytest_collection_modifyitems(items: List["Item"]) -> None:
 
     .. note::
 
-        This is a ``pytest hook function`` which be called after collection
-        of all test items is completed.
+        This is a ``pytest hook function`` which is called
+        after collection of all test items is completed.
 
     ..  _pytest.mark.asyncio:
         https://github.com/pytest-dev/pytest-asyncio#pytestmarkasyncio
@@ -76,6 +101,12 @@ def pytest_addoption(parser: "Parser") -> None:
 
     * ``--headless``: run browser in headless mode.
 
+    * ``--args``: additional args to pass to the browser instance. more
+      details refer to :py:func:`args` fixture.
+
+    * ``--window-size``: set the initial browser window size. Defaults
+      to 800 * 600.
+
     :param _pytest.config.argparsing.Parser parser: parser for command
            line arguments and ini-file values.
     :return: None
@@ -116,6 +147,20 @@ def pytest_addoption(parser: "Parser") -> None:
         "--headless", action="store_true", help="run browser in headless mode."
     )
 
+    group.addoption(
+        "--args",
+        action="append",
+        nargs="+",
+        help="additional args to pass to the browser instance.",
+    )
+
+    group.addoption(
+        "--window-size",
+        nargs=2,
+        default=["800", "600"],
+        help="set the initial browser window size.",
+    )
+
 
 @pytest.fixture(scope="session")
 def executable_path(pytestconfig: "Config") -> Optional[str]:
@@ -137,9 +182,7 @@ def executable_path(pytestconfig: "Config") -> Optional[str]:
 
            @pytest.fixture(scope="session")
            def executable_path(executable_path):
-               if executable_path is None:
-                   return "path/to/Chrome/or/Chromium"
-               return executable_path
+               return "path/to/Chrome/or/Chromium"
 
 
     :param _pytest.config.Config pytestconfig: a session-scoped fixture that return
@@ -160,13 +203,151 @@ def executable_path(pytestconfig: "Config") -> Optional[str]:
 
 
 @pytest.fixture(scope="session")
-def session_options(pytestconfig: "Config", executable_path: str) -> Options:
+def args(pytestconfig: "Config") -> List[str]:
+    """``Session-scoped fixture`` that return a list of additional
+    args in the `List of Chromium Command Line Arguments`_ to pass
+    to the browser instance.
+
+    You can use it by command-line option:
+
+    Example::
+
+        $ pytest --args proxy-server "localhost:5555,direct://" --args proxy-bypass-list "192.0.0.1/8;10.0.0.1/8"
+
+    Or overwrite it in your test:
+
+    Example::
+
+        @pytest.fixture(scope="session")
+        def args(args) -> List[str]:
+            return args + [
+                "--proxy-server=localhost:5555,direct://",
+                "--proxy-bypass-list=192.0.0.1/8;10.0.0.1/8",
+            ]
+
+    :param _pytest.config.Config pytestconfig: a session-scoped
+           fixture that return config object.
+    :return: a list of arguments string. return ``list()`` if no
+             ``--args`` passed in the command-line.
+
+    .. _List of Chromium Command Line Arguments:
+       https://peter.sh/experiments/chromium-command-line-switches/
+    """
+    args: list = pytestconfig.getoption("--args")
+    if args:
+        return ["--" + "=".join(arg_list) for arg_list in args]
+    else:
+        return list()
+
+
+@pytest.fixture(scope="session")
+def session_options(
+    pytestconfig: "Config", args: List[str], executable_path: str
+) -> "Options":
+    """``Session-scoped fixture`` that return a
+    :py:class:`models.Options` object used to initialize browser.
+
+    :param _pytest.config.Config pytestconfig: a session-scoped
+           fixture that return config object.
+    :param List[str] args: a session-scoped fixture that return
+           a list of additional args to pass to the browser instance.
+    :param str executable_path: a session-scoped fixture that return
+           Chrome or Chromium executable path.
+    :return: a :py:class:`models.Options` object used to initialize
+             browser.
+    """
     headless: bool = pytestconfig.getoption("--headless")
-    return Options(executablePath=executable_path, headless=headless)
+    window_size: List[str] = pytestconfig.getoption("--window-size")
+    args.append("--window-size={}".format(",".join(window_size)))
+    # Make sure page and browser size as same.
+    viewport = ViewPort()
+    viewport.width = int(window_size[0])
+    viewport.height = int(window_size[1])
+    return Options(
+        args=args,
+        executablePath=executable_path,
+        headless=headless,
+        defaultViewport=viewport,
+    )
 
 
 @pytest.fixture
-async def pyppeteer(session_options: Options):
-    browser = await launch(options=session_options.dict())
+def options(request: "FixtureRequest", session_options: "Options") -> "Options":
+    """``Function-scoped fixture`` that return a
+    :py:class:`models.Options` object used to initialize browser.
+
+    This fixture contains all of :py:func:`session_options`, plus
+    any options specified by the options markers. Any change to
+    these options will apply only to the tests covered by scope
+    of the fixture override.
+
+    Example::
+
+        @pytest.mark.options(devtools=True)
+        async def test_options_mark(pyppeteer):
+            ...
+
+    :param _pytest.fixture.FixtureRequest request: A request
+           object gives access to the requesting test context.
+    :param Options session_options: a :py:class:`models.Options`
+           object from :py:func:`session_options`.
+    :return: a :py:class:`models.Options` object used to initialize
+             browser.
+    """
+    return session_options.copy(update=get_options_from_markers(request.node))
+
+
+def get_options_from_markers(item: "Item") -> dict:
+    """Get the options from the ``options`` markers of test item.
+    And there are only apply on the current test item.
+
+    :param Item item: the test item object.
+    :return: an dict contains options.
+    """
+    options_dict = dict()
+    for node, mark in item.iter_markers_with_node("options"):
+        LOGGER.debug(
+            "{0} marker <{1.name}> "
+            "contains kwargs <{1.kwargs}>".format(node.__class__.__name__, mark)
+        )
+        options_dict.update(mark.kwargs)
+    LOGGER.info("Options from markers: {}".format(options_dict))
+    return options_dict
+
+
+@pytest.fixture
+async def pyppeteer(options: "Options") -> "Browser":
+    """``Function-scoped fixture`` that return a pyppeteer
+    browser instance.
+
+    :param Options options: a :py:class:`models.Options`
+           object used to initialize browser
+    :yield: a pyppeteer browser instance.
+    """
+    LOGGER.info("Options to initialize browser instance: {}".format(options))
+    browser: Browser = await launch(options=options.dict())
     yield browser
     await browser.close()
+
+
+@pytest.fixture
+async def pyppeteer_factory(options: "Options") -> Callable:
+    """``Function-scoped fixture`` that return a pyppeteer
+    browser factory.
+
+    :param Options options: a :py:class:`models.Options`
+           object used to initialize browser
+    :return: a pyppeteer browser factory.
+    """
+    browsers = list()
+
+    async def _factory() -> "Browser":
+        LOGGER.info("Options to initialize browser instance: {}".format(options))
+        browser: Browser = await launch(options=options.dict())
+        browsers.append(browser)
+        return browser
+
+    yield _factory
+
+    for browser in browsers:
+        await browser.close()

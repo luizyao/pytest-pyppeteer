@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, validator
 
@@ -37,14 +37,47 @@ class ViewPort(BaseModel):
 class Options(BaseModel):
     """The standard setting model for pyppeteer launcher."""
 
-    #: Path to a Chromium or Chrome executable. ``None`` means use the
-    #: default bundled Chromium.
-    executablePath: Optional[str] = ...
+    #: Additional arguments to pass to the browser instance. The list
+    #: of Chromium flags can be found
+    #: `here <https://peter.sh/experiments/chromium-command-line-switches/>`_.
+    #: Defaults to ``list()``.
+    args: List[str] = list()
+
+    #: Automatically close browser process when script completed.
+    #: Defaults to ``True``.
+    autoClose: bool = True
 
     #: Set a consistent viewport for each page. Defaults to a default
     #: :py:class:`ViewPort` instance. ``None`` means disables the
     #: default viewport.
     defaultViewport: Optional["ViewPort"] = ViewPort()
+
+    #: Whether to auto-open a DevTools panel for each tab. If this
+    #: option is ``True``, the ``headless`` option will be set ``False``.
+    #: Defaults to ``False``.
+    devtools: bool = False
+
+    #: Whether to pipe the browser process stdout and stderr into
+    #: ``process.stdout`` and ``process.stderr``. Defaults to ``False``.
+    dumpio: bool = False
+
+    #: Specify environment variables that will be visible to the
+    #: browser. ``None`` means that same as python process.
+    #: Defaults to ``None``.
+    env: Optional[dict] = None
+
+    #: Path to a Chromium or Chrome executable. ``None`` means use the
+    #: default bundled Chromium. Defaults to ``None``.
+    executablePath: Optional[str] = None
+
+    #: Close the browser process on `Ctrl-C`. Defaults to ``True``.
+    handleSIGINT: bool = True
+
+    #: Close the browser process on `SIGTERM`. Defaults to ``True``.
+    handleSIGTERM: bool = True
+
+    #: Close the browser process on `SIGHUP`. Defaults to ``True``.
+    handleSIGHUP: bool = True
 
     #: Whether to run browser in headless mode. Defaults to ``False``.
     headless: bool = False
@@ -52,14 +85,37 @@ class Options(BaseModel):
     #: Whether to ignore HTTPS errors. Defaults to ``True``.
     ignoreHTTPSErrors: bool = True
 
+    #: If ``True``, then do not use pyppeteer's default args. If a
+    #: list is given, then filter out the given default args.
+    #: Dangerous option; use with care. Defaults to ``False``.
+    ignoreDefaultArgs: Union[bool, List[str]] = False
+
+    #: Log level to print logs. ``None`` means that same as the root logger.
+    #: Defaults to ``None``.
+    logLevel: Union[int, str, None] = None
+
     #: Slow down operations by the specified amount of milliseconds.
     #: useful so that you can see what is going on. Defaults to ``0.0``.
     slowMo: float = 0.0
 
+    #: Path to a
+    #: `User Data Directory <https://chromium.googlesource.com/chromium/src/+/master/docs/user_data_dir.md>`_.
+    #: Defaults to ``None``.
+    userDataDir: Optional[str] = None
+
+    class Config:
+        """Control the behaviours of pydantic model."""
+
+        #: whether to allow arbitrary user types for fields (they are
+        #: validated simply by checking if the value is an instance
+        #: of the type). If False, RuntimeError will be raised on model
+        #: declaration.
+        arbitrary_types_allowed = True
+
     @validator("executablePath", pre=True)
-    def executable_must_existed(cls, path: Optional[str]) -> Optional[str]:
-        """Validate that the ``executablePath`` must be existed if it's
-        not ``None``.
+    def validate_executable_path(cls, path: Optional[str]) -> Optional[str]:
+        """Validate that the specified ``executablePath`` must point
+        to an executable.
 
         :param str path: path string.
         :return: path string.
