@@ -12,7 +12,8 @@ async def test_pyppeteer(pyppeteer: "Browser"):
     await page.goto("https://bing.com")
 
 
-@pytest.mark.options(devtools=True)
+# Starts the browser maximized
+@pytest.mark.options(args=["--start-maximized"])
 async def test_options_mark(pyppeteer):
     page = await pyppeteer.newPage()
     await page.goto("https://bing.com")

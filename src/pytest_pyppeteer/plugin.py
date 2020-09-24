@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional
 import pytest
 from pyppeteer import launch
 
-from pytest_pyppeteer.models import Options, ViewPort
+from pytest_pyppeteer.models import Browser, Options, ViewPort
 from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Item
-    from pyppeteer.browser import Browser
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -316,21 +316,6 @@ def get_options_from_markers(item: "Item") -> dict:
 
 
 @pytest.fixture
-async def pyppeteer(options: "Options") -> "Browser":
-    """``Function-scoped fixture`` that return a pyppeteer
-    browser instance.
-
-    :param Options options: a :py:class:`models.Options`
-           object used to initialize browser
-    :yield: a pyppeteer browser instance.
-    """
-    LOGGER.info("Options to initialize browser instance: {}".format(options))
-    browser: Browser = await launch(options=options.dict())
-    yield browser
-    await browser.close()
-
-
-@pytest.fixture
 async def pyppeteer_factory(options: "Options") -> Callable:
     """``Function-scoped fixture`` that return a pyppeteer
     browser factory.
@@ -339,15 +324,26 @@ async def pyppeteer_factory(options: "Options") -> Callable:
            object used to initialize browser
     :return: a pyppeteer browser factory.
     """
-    browsers = list()
+    browsers: List[Browser] = list()
 
     async def _factory() -> "Browser":
         LOGGER.info("Options to initialize browser instance: {}".format(options))
-        browser: Browser = await launch(options=options.dict())
-        browsers.append(browser)
-        return browser
+        b = Browser(pyppeteer_browser=await launch(options=options.dict()))
+        browsers.append(b)
+        return b
 
     yield _factory
 
     for browser in browsers:
         await browser.close()
+
+
+@pytest.fixture
+async def pyppeteer(pyppeteer_factory: "Callable") -> "Browser":
+    """``Function-scoped fixture`` that return a pyppeteer
+    browser instance.
+
+    :param Callable pyppeteer_factory: pyppeteer factory
+    :yield: a pyppeteer browser instance.
+    """
+    return await pyppeteer_factory()

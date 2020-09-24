@@ -41,5 +41,7 @@ setup(
         "pytest-asyncio==0.14.0",
         "pytest==6.0.2",
         "pydantic==1.6.1",
+        "cssselect==1.1.0",
+        "lxml==4.5.2",
     ],
 )

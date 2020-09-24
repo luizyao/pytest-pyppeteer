@@ -12,6 +12,8 @@ pytest = "*"
 pyppeteer = "*"
 pytest-asyncio = "*"
 pydantic = "*"
+cssselect = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.8"

@@ -36,3 +36,18 @@ class PathError(Error):
 class PathNotAExecutableError(PathError):
     code = "file.not_a_executable"
     msg_template = 'path "{path}" does not point to a executable file'
+
+
+class LocatorError(Error):
+    """The base-class for all locator-related exceptions.
+
+    :param str path: locatore string.
+    """
+
+    def __init__(self, locator: str) -> None:
+        super(LocatorError, self).__init__(locator=locator)
+
+
+class LocatorNotAValidSelectorOrXPath(LocatorError):
+    code = "locator.not_a_valid_selector_or_xpath"
+    msg_template = 'locator "{locator}" is not a valid selector or xpath string.'

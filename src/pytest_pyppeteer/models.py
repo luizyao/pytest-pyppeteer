@@ -2,8 +2,12 @@ import os
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, validator
+from pyppeteer.browser import Browser as PyppeteerBrowser
+from pyppeteer.element_handle import ElementHandle
+from pyppeteer.page import Page as PyppeteerPage
 
 from pytest_pyppeteer.errors import PathNotAExecutableError
+from pytest_pyppeteer.utils import parse_locator
 
 
 class ViewPort(BaseModel):
@@ -125,3 +129,58 @@ class Options(BaseModel):
         if path and not (os.path.isfile(path) and os.access(path, os.X_OK)):
             raise PathNotAExecutableError(path=os.path.abspath(path))
         return path
+
+
+class Browser(BaseModel):
+    #: a pyppeteer browser object.
+    pyppeteer_browser: "PyppeteerBrowser"
+
+    class Config:
+        """Control the behaviours of pydantic model."""
+
+        #: whether to allow arbitrary user types for fields (they are
+        #: validated simply by checking if the value is an instance
+        #: of the type). If False, RuntimeError will be raised on model
+        #: declaration.
+        arbitrary_types_allowed = True
+
+    def __getattr__(self, name):
+        return getattr(self.pyppeteer_browser, name)
+
+    async def new_page(self) -> "Page":
+        """Make new page on this browser and return its object.
+
+        :return: a :py:class:`Page` object.
+        """
+        return Page(pyppeteer_page=await self.pyppeteer_browser.newPage())
+
+
+class Page(BaseModel):
+    #: a pyppeteer page object.
+    pyppeteer_page: "PyppeteerPage"
+
+    class Config:
+        """Control the behaviours of pydantic model."""
+
+        #: whether to allow arbitrary user types for fields (they are
+        #: validated simply by checking if the value is an instance
+        #: of the type). If False, RuntimeError will be raised on model
+        #: declaration.
+        arbitrary_types_allowed = True
+
+    def __getattr__(self, name):
+        return getattr(self.pyppeteer_page, name)
+
+    async def query_locator(self, locator: str) -> Optional[ElementHandle]:
+        """Get the element which match ``locator``.
+
+        If no element matches the ``locator``, return ``None``.
+        :param str locator: a selector or xpath string
+        :return: an element handle or ``None``.
+        """
+        _type, locator_string = parse_locator(locator)
+        if _type == "css":
+            return await self.pyppeteer_page.querySelector(locator_string)
+        elif _type == "xpath":
+            element_list = await self.pyppeteer_page.xpath(locator_string)
+            return element_list[0] if element_list else None

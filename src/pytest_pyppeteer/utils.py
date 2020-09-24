@@ -1,5 +1,10 @@
 import sys
 
+import cssselect
+from lxml import etree
+
+from pytest_pyppeteer.errors import LocatorNotAValidSelectorOrXPath
+
 CHROME_EXECUTABLE = {
     "mac": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "win64": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -24,3 +29,31 @@ def current_platform() -> str:
             sys.platform
         )
     )
+
+
+def parse_locator(locator: str) -> tuple:
+    """validate that the locator string must a valid css or
+    xpath.
+
+    :param locator: a locator string.
+    :return: a tuple contains locator_type and locator_string.
+    :raise LocatorNotAValidSelectorOrXPath: locator is not a
+           valid selector or xpath string.
+    """
+    if not isinstance(locator, str):
+        raise TypeError("Locator not a string.")
+    # CSS selector
+    try:
+        cssselect.parse(locator)
+    except cssselect.SelectorSyntaxError:
+        pass
+    else:
+        return "css", locator
+    # XPath
+    try:
+        etree.XPath(locator)
+    except etree.XPathSyntaxError:
+        pass
+    else:
+        return "xpath", locator
+    raise LocatorNotAValidSelectorOrXPath(locator=locator)
