@@ -175,6 +175,7 @@ class Page(BaseModel):
         """Get the element which match ``locator``.
 
         If no element matches the ``locator``, return ``None``.
+
         :param str locator: a selector or xpath string
         :return: an element handle or ``None``.
         """
