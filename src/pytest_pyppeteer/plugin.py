@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Awaitable
 
 import pytest
 from pyppeteer import launch
@@ -10,13 +10,21 @@ from pytest_pyppeteer.models import Browser, Options, ViewPort
 from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
-    from _pytest.config import Config
+    from _pytest.config import Config, PytestPluginManager
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Item
+    from _pytest.runner import TestReport
+    from pluggy.callers import _Result
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def pytest_addhooks(pluginmanager: "PytestPluginManager"):
+    from . import hooks
+
+    pluginmanager.add_hookspecs(hooks)
 
 
 def pytest_configure(config: "Config") -> None:
@@ -89,6 +97,32 @@ def is_coroutine(obj: Any) -> bool:
     :return: `True` or `False`.
     """
     return asyncio.iscoroutinefunction(obj) or inspect.isgeneratorfunction(obj)
+
+
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_runtest_makereport(item: "Item") -> None:
+    """Implement this pytest hook in wrapper mode, the added
+    behaviors as follows:
+
+    * Register a new hook named
+      :py:meth:``pytest_pyppeteer_runtest_makereport_call_debug``, called
+      when a actual failing test calls not setup/teardown.
+
+    :param pytest.Item item: the pytest item object.
+    :return: None
+    """
+    # execute all other hooks to obtain the report object
+    outcome = yield  # type: _Result
+    res: TestReport = outcome.get_result()
+
+    # we only deal with actual failing test calls, not setup/teardown
+    if res.when == "call" and res.failed:
+        hook: List[
+            Awaitable
+        ] = item.ihook.pytest_pyppeteer_runtest_makereport_call_debug(item=item)
+        if hook:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(hook[0])
 
 
 def pytest_addoption(parser: "Parser") -> None:
@@ -322,7 +356,7 @@ async def pyppeteer_factory(options: "Options") -> Callable:
 
     :param Options options: a :py:class:`models.Options`
            object used to initialize browser
-    :return: a pyppeteer browser factory.
+    :yield: a pyppeteer browser factory.
     """
     browsers: List[Browser] = list()
 
@@ -346,4 +380,4 @@ async def pyppeteer(pyppeteer_factory: "Callable") -> "Browser":
     :param Callable pyppeteer_factory: pyppeteer factory
     :yield: a pyppeteer browser instance.
     """
-    return await pyppeteer_factory()
+    yield await pyppeteer_factory()

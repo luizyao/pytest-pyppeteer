@@ -1,13 +1,20 @@
+import logging
 import os
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, Awaitable, List, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 from pyppeteer.browser import Browser as PyppeteerBrowser
-from pyppeteer.element_handle import ElementHandle
+from pyppeteer.errors import TimeoutError
 from pyppeteer.page import Page as PyppeteerPage
 
-from pytest_pyppeteer.errors import PathNotAExecutableError
+from pytest_pyppeteer.errors import (ElementNotExistError, ElementTimeoutError,
+                                     PathNotAExecutableError)
 from pytest_pyppeteer.utils import parse_locator
+
+if TYPE_CHECKING:
+    from pyppeteer.element_handle import ElementHandle
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ViewPort(BaseModel):
@@ -171,7 +178,7 @@ class Page(BaseModel):
     def __getattr__(self, name):
         return getattr(self.pyppeteer_page, name)
 
-    async def query_locator(self, locator: str) -> Optional[ElementHandle]:
+    async def query_locator(self, locator: str) -> Optional["ElementHandle"]:
         """Get the element which match ``locator``.
 
         If no element matches the ``locator``, return ``None``.
@@ -185,3 +192,116 @@ class Page(BaseModel):
         elif _type == "xpath":
             element_list = await self.pyppeteer_page.xpath(locator_string)
             return element_list[0] if element_list else None
+
+    async def waitfor(
+        self,
+        locator: str,
+        visible: bool = True,
+        hidden: bool = False,
+        timeout: int = 30000,
+    ) -> None:
+        """Wait until element which matches ``locator``.
+
+        :param str locator: a selector or xpath string.
+        :param bool visible: Wait for element to be present in DOM and to be
+               visible; i.e. to not have ``display: none`` or ``visibility: hidden``
+               CSS properties. Defaults to ``True``.
+        :param bool hidden: Wait for element to not be found in the DOM or to
+               be hidden, i.e. have ``display: none`` or ``visibility: hidden`` CSS
+               properties. Defaults to ``False``.
+        :param int timeout: Maximum time to wait for in milliseconds.
+               Defaults to 30000 (30 seconds). Pass ``0`` to disable timeout.
+        :return: None
+        :raise ElementTimeoutError: Timeout exceeded while wait for ``locator``.
+        """
+        _type, locator_string = parse_locator(locator)
+        options = {"visible": visible, "hidden": hidden, "timeout": timeout}
+        try:
+            if _type == "css":
+                await self.pyppeteer_page.waitForSelector(
+                    locator_string, options=options
+                )
+            elif _type == "xpath":
+                await self.pyppeteer_page.waitForXPath(locator_string, options=options)
+        except TimeoutError as e:
+            action = "disappear" if hidden else "appear"
+            raise ElementTimeoutError(
+                locator=locator, timeout=timeout, action=action
+            ) from e
+
+    async def type(self, locator: str, text: str, delay: int = 0, clear: bool = False):
+        """Focus the element which matches ``locator`` and then
+        type text.
+
+        :param locator: a selector or xpath string.
+        :param text: what you want to type into.
+        :param int delay: specifies time to wait between key presses
+               in milliseconds. Defaults to 0.
+        :param bool clear: whether to clear existing content befor
+               typing. Defaults to ``False``.
+        :return:
+        """
+        element = await self.query_locator(locator)
+        if element is None:
+            raise ElementNotExistError(locator=locator)
+        LOGGER.info('type text("{}") into element("{}").'.format(text, locator))
+        if clear:
+            value = await element.executionContext.evaluate(
+                "(node => node.value || node.innerText)", element
+            )
+            if value:
+                await element.click()
+                for _ in value:
+                    await self.pyppeteer_page.keyboard.press("ArrowRight")
+                await self.pyppeteer_page.keyboard.down("Shift")
+                for _ in value:
+                    await self.pyppeteer_page.keyboard.press("ArrowLeft")
+                    await asyncio.sleep(delay / 1000.0)
+                await self.pyppeteer_page.keyboard.up("Shift")
+                await self.pyppeteer_page.keyboard.press("Backspace")
+        await element.type(text, delay=delay)
+        await element.dispose()
+
+    async def click(
+        self,
+        locator: str,
+        button: Literal["left", "middle", "right"] = "left",
+        click_count: int = 1,
+        delay: int = 0,
+    ):
+        """Click the center of the element which matches ``locator``.
+
+        :param str locator: a selector or xpath string.
+        :param Literal["left", "middle", "right"] button: ``left``,
+               ``right``, of ``middle``. Defaults to ``left``.
+        :param int click_count: Defaults to 1.
+        :param int delay: Time to wait between ``mousedown`` and
+               ``mouseup`` in milliseconds. Defaults to 0.
+        :return: None
+        :raise ElementNotExistError: if the element which matches
+               ``locator`` is not found.
+        """
+        element = await self.query_locator(locator)
+        if element is None:
+            raise ElementNotExistError(locator=locator)
+        LOGGER.info('click element("{}").'.format(locator))
+        await element.click(button=button, clickCount=click_count, delay=delay)
+        await element.dispose()
+
+    async def get_value(self, locator: str) -> str:
+        """Get the element ``value`` or ``innerText`` which matches
+         ``locator``.
+
+        :param str locator: a selector or xpath string.
+        :return: the element ``value`` or ``innerText`` string.
+        :raise ElementNotExistError: if the element which matches
+               ``locator`` is not found.
+        """
+        element = await self.query_locator(locator)
+        if element is None:
+            raise ElementNotExistError(locator=locator)
+        value: str = await element.executionContext.evaluate(
+            "(node => node.value || node.innerText)", element
+        )
+        await element.dispose()
+        return value

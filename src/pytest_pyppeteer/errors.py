@@ -4,7 +4,7 @@ from typing import Any
 class ErrorMixin:
     """The mixin for base exceptions.
 
-    :param Any ctx: content veriables.
+    :param Any ctx: content variables.
     """
 
     #: Type identification code.
@@ -48,6 +48,31 @@ class LocatorError(Error):
         super(LocatorError, self).__init__(locator=locator)
 
 
-class LocatorNotAValidSelectorOrXPath(LocatorError):
+class LocatorNotAValidSelectorOrXPathError(LocatorError):
     code = "locator.not_a_valid_selector_or_xpath"
     msg_template = 'locator "{locator}" is not a valid selector or xpath string.'
+
+
+class ElementError(Error):
+    """The base-class for all element-related exceptions.
+
+    :param str locator: element locator string.
+    """
+
+    def __init__(self, locator: str) -> None:
+        super(ElementError, self).__init__(locator=locator)
+
+
+class ElementNotExistError(ElementError):
+    code = "element.not_exist"
+    msg_template = 'Element "{locator}" not exist.'
+
+
+class ElementTimeoutError(ElementError):
+    code = "element.timeout"
+    msg_template = (
+        'Wait for element "{locator}" to {action} failed: timeout {timeout}ms exceeds.'
+    )
+
+    def __init__(self, locator: str, timeout: int, action: str = "appear") -> None:
+        super(ElementTimeoutError, self).__init__(locator=locator)
