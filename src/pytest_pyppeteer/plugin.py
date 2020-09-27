@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Awaitable
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, List, Optional
 
 import pytest
 from pyppeteer import launch
@@ -104,9 +104,9 @@ def pytest_runtest_makereport(item: "Item") -> None:
     """Implement this pytest hook in wrapper mode, the added
     behaviors as follows:
 
-    * Register a new hook named
-      :py:meth:``pytest_pyppeteer_runtest_makereport_call_debug``, called
-      when a actual failing test calls not setup/teardown.
+    * Register a new
+      :py:func:`hooks.pytest_pyppeteer_runtest_makereport_call_debug`
+      hook which called when a actual failing test calls not setup/teardown.
 
     :param pytest.Item item: the pytest item object.
     :return: None
