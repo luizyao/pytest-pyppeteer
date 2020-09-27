@@ -1,6 +1,7 @@
+import asyncio
 import logging
 import os
-from typing import TYPE_CHECKING, Awaitable, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 from pyppeteer.browser import Browser as PyppeteerBrowser
