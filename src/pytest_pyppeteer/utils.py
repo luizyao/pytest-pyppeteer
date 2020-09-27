@@ -3,7 +3,7 @@ import sys
 import cssselect
 from lxml import etree
 
-from pytest_pyppeteer.errors import LocatorNotAValidSelectorOrXPath
+from pytest_pyppeteer.errors import LocatorNotAValidSelectorOrXPathError
 
 CHROME_EXECUTABLE = {
     "mac": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -56,4 +56,4 @@ def parse_locator(locator: str) -> tuple:
         pass
     else:
         return "xpath", locator
-    raise LocatorNotAValidSelectorOrXPath(locator=locator)
+    raise LocatorNotAValidSelectorOrXPathError(locator=locator)
