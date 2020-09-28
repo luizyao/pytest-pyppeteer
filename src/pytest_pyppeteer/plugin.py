@@ -15,13 +15,17 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.nodes import Item
     from _pytest.runner import TestReport
-    from pluggy.callers import _Result
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def pytest_addhooks(pluginmanager: "PytestPluginManager"):
+def pytest_addhooks(pluginmanager: "PytestPluginManager") -> None:
+    """Add new hooks.
+
+    :param _pytest.config.PytestPluginManager pluginmanager:
+    :return: ``None``
+    """
     from . import hooks
 
     pluginmanager.add_hookspecs(hooks)
@@ -112,7 +116,7 @@ def pytest_runtest_makereport(item: "Item") -> None:
     :return: None
     """
     # execute all other hooks to obtain the report object
-    outcome = yield  # type: _Result
+    outcome = yield
     res: TestReport = outcome.get_result()
 
     # we only deal with actual failing test calls, not setup/teardown
@@ -139,7 +143,8 @@ def pytest_addoption(parser: "Parser") -> None:
       details refer to :py:func:`args` fixture.
 
     * ``--window-size``: set the initial browser window size. Defaults
-      to 800 * 600.
+      to 800 * 600. ``--window-size 0 0`` means to starts the browser
+      maximized.
 
     :param _pytest.config.argparsing.Parser parser: parser for command
            line arguments and ini-file values.
@@ -291,18 +296,12 @@ def session_options(
              browser.
     """
     headless: bool = pytestconfig.getoption("--headless")
-    window_size: List[str] = pytestconfig.getoption("--window-size")
-    args.append("--window-size={}".format(",".join(window_size)))
-    # Make sure page and browser size as same.
-    viewport = ViewPort()
-    viewport.width = int(window_size[0])
-    viewport.height = int(window_size[1])
-    return Options(
-        args=args,
-        executablePath=executable_path,
-        headless=headless,
-        defaultViewport=viewport,
-    )
+    width, hight = pytestconfig.getoption("--window-size")
+    if width == "0" and hight == "0":
+        args.append("--start-maximized --start-fullscreen")
+    else:
+        args.append("--window-size={},{}".format(width, hight))
+    return Options(args=args, executablePath=executable_path, headless=headless)
 
 
 @pytest.fixture

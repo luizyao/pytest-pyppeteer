@@ -8,8 +8,11 @@ from pyppeteer.browser import Browser as PyppeteerBrowser
 from pyppeteer.errors import TimeoutError
 from pyppeteer.page import Page as PyppeteerPage
 
-from pytest_pyppeteer.errors import (ElementNotExistError, ElementTimeoutError,
-                                     PathNotAExecutableError)
+from pytest_pyppeteer.errors import (
+    ElementNotExistError,
+    ElementTimeoutError,
+    PathNotAExecutableError,
+)
 from pytest_pyppeteer.utils import parse_locator
 
 if TYPE_CHECKING:
@@ -160,7 +163,19 @@ class Browser(BaseModel):
 
         :return: a :py:class:`Page` object.
         """
-        return Page(pyppeteer_page=await self.pyppeteer_browser.newPage())
+        pyppeteer_page = await self.pyppeteer_browser.newPage()
+        # Make sure page and browser size as same.
+        dimensions = await pyppeteer_page.evaluate(
+            """() => {
+            return {
+                width: window.outerWidth,
+                height: window.outerHeight,
+                deviceScaleFactor: window.devicePixelRatio,
+            }
+        }"""
+        )
+        await pyppeteer_page.setViewport(dimensions)
+        return Page(pyppeteer_page=pyppeteer_page)
 
 
 class Page(BaseModel):
