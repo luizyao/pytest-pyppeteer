@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 from pyppeteer.browser import Browser as PyppeteerBrowser
-from pyppeteer.errors import TimeoutError
+from pyppeteer.errors import TimeoutError, ElementHandleError
 from pyppeteer.page import Page as PyppeteerPage
 
 from pytest_pyppeteer.errors import (
@@ -261,12 +261,13 @@ class Page(BaseModel):
         element = await self.query_locator(locator)
         if element is None:
             raise ElementNotExistError(locator=locator)
-        LOGGER.info('type text("{}") into element("{}").'.format(text, locator))
+        LOGGER.info('Type text("{}") into element("{}").'.format(text, locator))
         if clear:
             value = await element.executionContext.evaluate(
                 "(node => node.value || node.innerText)", element
             )
             if value:
+                await self._clickable(element)
                 await element.click()
                 for _ in value:
                     await self.pyppeteer_page.keyboard.press("ArrowRight")
@@ -278,6 +279,17 @@ class Page(BaseModel):
                 await self.pyppeteer_page.keyboard.press("Backspace")
         await element.type(text, delay=delay)
         await element.dispose()
+
+    async def _clickable(self, element: "ElementHandle") -> None:
+        for i in range(10):
+            try:
+                await element._clickablePoint()
+            except ElementHandleError as e:
+                LOGGER.error(e)
+                LOGGER.info("Element not clickable. waiting... and try again.")
+                await asyncio.sleep(0.5)
+            else:
+                break
 
     async def click(
         self,
@@ -301,7 +313,8 @@ class Page(BaseModel):
         element = await self.query_locator(locator)
         if element is None:
             raise ElementNotExistError(locator=locator)
-        LOGGER.info('click element("{}").'.format(locator))
+        LOGGER.info('Click element("{}").'.format(locator))
+        await self._clickable(element)
         await element.click(button=button, clickCount=click_count, delay=delay)
         await element.dispose()
 
