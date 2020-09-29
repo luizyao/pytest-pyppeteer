@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, List, Optional
 import pytest
 from pyppeteer import launch
 
-from pytest_pyppeteer.models import Browser, Options, ViewPort
+from pytest_pyppeteer.models import Browser, Options
 from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
@@ -298,7 +298,10 @@ def session_options(
     headless: bool = pytestconfig.getoption("--headless")
     width, hight = pytestconfig.getoption("--window-size")
     if width == "0" and hight == "0":
-        args.append("--start-maximized --start-fullscreen")
+        if current_platform() == "mac":
+            args.append("--start-fullscreen")
+        else:
+            args.append("--start-maximized")
     else:
         args.append("--window-size={},{}".format(width, hight))
     return Options(args=args, executablePath=executable_path, headless=headless)

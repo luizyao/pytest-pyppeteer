@@ -174,6 +174,7 @@ class Browser(BaseModel):
             }
         }"""
         )
+        LOGGER.info('Resize page viewport to "{}"'.format(dimensions))
         await pyppeteer_page.setViewport(dimensions)
         return Page(pyppeteer_page=pyppeteer_page)
 
