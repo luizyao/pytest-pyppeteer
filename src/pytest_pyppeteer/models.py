@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List, Literal, Optional, Union
 
 from pydantic import BaseModel, validator
 from pyppeteer.browser import Browser as PyppeteerBrowser
-from pyppeteer.errors import TimeoutError, ElementHandleError
+from pyppeteer.errors import ElementHandleError, TimeoutError
 from pyppeteer.page import Page as PyppeteerPage
 
 from pytest_pyppeteer.errors import (
@@ -179,6 +179,18 @@ class Browser(BaseModel):
         return Page(pyppeteer_page=pyppeteer_page)
 
 
+async def _clickable(element: "ElementHandle") -> None:
+    for i in range(10):
+        try:
+            await element._clickablePoint()
+        except ElementHandleError as e:
+            LOGGER.error(e)
+            LOGGER.info("Element not clickable. waiting... and try again.")
+            await asyncio.sleep(0.5)
+        else:
+            break
+
+
 class Page(BaseModel):
     #: a pyppeteer page object.
     pyppeteer_page: "PyppeteerPage"
@@ -267,7 +279,7 @@ class Page(BaseModel):
                 "(node => node.value || node.innerText)", element
             )
             if value:
-                await self._clickable(element)
+                await _clickable(element)
                 await element.click()
                 for _ in value:
                     await self.pyppeteer_page.keyboard.press("ArrowRight")
@@ -279,17 +291,6 @@ class Page(BaseModel):
                 await self.pyppeteer_page.keyboard.press("Backspace")
         await element.type(text, delay=delay)
         await element.dispose()
-
-    async def _clickable(self, element: "ElementHandle") -> None:
-        for i in range(10):
-            try:
-                await element._clickablePoint()
-            except ElementHandleError as e:
-                LOGGER.error(e)
-                LOGGER.info("Element not clickable. waiting... and try again.")
-                await asyncio.sleep(0.5)
-            else:
-                break
 
     async def click(
         self,
@@ -314,7 +315,7 @@ class Page(BaseModel):
         if element is None:
             raise ElementNotExistError(locator=locator)
         LOGGER.info('Click element("{}").'.format(locator))
-        await self._clickable(element)
+        await _clickable(element)
         await element.click(button=button, clickCount=click_count, delay=delay)
         await element.dispose()
 
