@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from _pytest.nodes import Item
     from _pytest.runner import TestReport
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -118,6 +117,7 @@ def pytest_runtest_makereport(item: "Item") -> None:
     # execute all other hooks to obtain the report object
     outcome = yield
     res: TestReport = outcome.get_result()
+    setattr(item, f"res_{res.when}", res)
 
     # we only deal with actual failing test calls, not setup/teardown
     if res.when == "call" and res.failed:

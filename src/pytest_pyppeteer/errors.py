@@ -29,7 +29,7 @@ class PathError(Error):
     :param str path: path string.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, **kwargs: Any) -> None:
         super(PathError, self).__init__(path=path)
 
 
@@ -44,7 +44,7 @@ class LocatorError(Error):
     :param str path: locatore string.
     """
 
-    def __init__(self, locator: str) -> None:
+    def __init__(self, locator: str, **kwargs: Any) -> None:
         super(LocatorError, self).__init__(locator=locator)
 
 
@@ -59,8 +59,8 @@ class ElementError(Error):
     :param str locator: element locator string.
     """
 
-    def __init__(self, locator: str) -> None:
-        super(ElementError, self).__init__(locator=locator)
+    def __init__(self, locator: str, **kwargs: Any) -> None:
+        super(ElementError, self).__init__(locator=locator, **kwargs)
 
 
 class ElementNotExistError(ElementError):
@@ -75,4 +75,6 @@ class ElementTimeoutError(ElementError):
     )
 
     def __init__(self, locator: str, timeout: int, action: str = "appear") -> None:
-        super(ElementTimeoutError, self).__init__(locator=locator)
+        super(ElementTimeoutError, self).__init__(
+            locator=locator, timeout=timeout, action=action
+        )
