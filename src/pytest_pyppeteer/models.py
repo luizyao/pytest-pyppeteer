@@ -321,7 +321,7 @@ class Page(BaseModel):
 
     async def get_value(self, locator: str) -> str:
         """Get the element ``value`` or ``innerText`` which matches
-         ``locator``.
+        ``locator``.
 
         :param str locator: a selector or xpath string.
         :return: the element ``value`` or ``innerText`` string.
