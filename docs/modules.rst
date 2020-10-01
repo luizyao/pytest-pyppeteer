@@ -1,5 +1,5 @@
-pytest_pyppeteer
-================
+API Reference
+=============
 
 .. toctree::
    :maxdepth: 4

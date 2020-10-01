@@ -6,16 +6,22 @@
 Welcome to pytest-pyppeteer's documentation!
 ============================================
 
+pytest-pyppeteer is a plugin to run `pyppeteer <https://github.com/pyppeteer/pyppeteer>`_ in pytest.
+
+Features
+--------
+
+* Support locate element by Selector and Xpath.
+
+Documents
+---------
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   installation
+   quickstart
+   usage
+   advanced
 
    modules
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

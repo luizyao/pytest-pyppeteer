@@ -221,7 +221,9 @@ def executable_path(pytestconfig: "Config") -> Optional[str]:
 
            @pytest.fixture(scope="session")
            def executable_path(executable_path):
-               return "path/to/Chrome/or/Chromium"
+               if executable_path is None:
+                   return "path/to/Chrome/or/Chromium"
+                   return executable_path
 
 
     :param _pytest.config.Config pytestconfig: a session-scoped fixture that return
