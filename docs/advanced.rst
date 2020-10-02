@@ -19,7 +19,7 @@ at the same time, then compare them.
     import pytest
 
     if TYPE_CHECKING:
-        from pytest_pyppeteer.models import Browser, Page
+        from .models import Browser, Page
 
 
     @dataclass
