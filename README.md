@@ -6,6 +6,8 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![PyPI](https://img.shields.io/pypi/v/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Documentation Status](https://readthedocs.org/projects/pytest-pyppeteer/badge/?version=latest)](https://pytest-pyppeteer.readthedocs.io/?badge=latest)
+
 
 # Document
 <https://pytest-pyppeteer.readthedocs.io/>
