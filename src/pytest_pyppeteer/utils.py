@@ -3,7 +3,7 @@ import sys
 import cssselect
 from lxml import etree
 
-from pytest_pyppeteer.errors import LocatorNotAValidSelectorOrXPathError
+from .errors import LocatorNotAValidSelectorOrXPathError
 
 CHROME_EXECUTABLE = {
     "mac": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
