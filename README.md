@@ -26,7 +26,7 @@ pip install git+https://github.com/luizyao/pytest-pyppeteer.git
 
 # Quickstart
 
-For example, query the rating of the movie **The Shawshank Redemption** on `douban.com <https://movie.douban.com>`_.
+For example, query the rating of the movie **The Shawshank Redemption** on [douban.com](https://movie.douban.com).
 
 ```python
 from dataclasses import dataclass
