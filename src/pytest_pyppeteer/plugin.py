@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, List, Optional
 import pytest
 from pyppeteer import launch
 
-from .models import Browser, Options
-from .utils import CHROME_EXECUTABLE, current_platform
+from pytest_pyppeteer.models import Browser, Options
+from pytest_pyppeteer.utils import CHROME_EXECUTABLE, current_platform
 
 if TYPE_CHECKING:
     from _pytest.config import Config, PytestPluginManager

@@ -8,10 +8,12 @@ from pyppeteer.browser import Browser as PyppeteerBrowser
 from pyppeteer.errors import ElementHandleError, TimeoutError
 from pyppeteer.page import Page as PyppeteerPage
 
+from pytest_pyppeteer.errors import (
+    ElementNotExistError,
+    ElementTimeoutError,
+    PathNotAExecutableError,
+)
 from pytest_pyppeteer.utils import parse_locator
-
-from .errors import (ElementNotExistError, ElementTimeoutError,
-                     PathNotAExecutableError)
 
 if TYPE_CHECKING:
     from pyppeteer.element_handle import ElementHandle
