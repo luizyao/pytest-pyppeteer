@@ -7,16 +7,8 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
-# Features
-
-- TODO
-
-
-# Requirements
-
-- TODO
-
+# Document
+<https://pytest-pyppeteer.readthedocs.io/>
 
 # Installation
 You can install pytest-pyppeteer via [pip](https://pypi.org/project/pip/):
@@ -32,15 +24,43 @@ pip install git+https://github.com/luizyao/pytest-pyppeteer.git
 ```
 
 
-# Usage
+# Quickstart
 
-- TODO
+For example, query the rating of the movie **The Shawshank Redemption** on `douban.com <https://movie.douban.com>`_.
+
+```python
+from dataclasses import dataclass
 
 
-# Contributing
-Contributions are very welcome. 
+@dataclass
+class Elements:
+    url = "https://movie.douban.com/"
 
-Tests can be run with [tox](https://tox.readthedocs.io/en/latest/), please ensure the coverage at least stays the same before you submit a pull request.
+    query = "#inp-query"
+    apply = ".inp-btn > input:nth-child(1)"
+
+    result = (
+        "#root > div > div > div > div > div:nth-child(1) > div.item-root a.cover-link"
+    )
+    rating = (
+        "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
+    )
+
+
+async def test_options_mark(pyppeteer):
+    page = await pyppeteer.new_page()
+    await page.goto("https://movie.douban.com")
+
+    await page.type(Elements.query, "The Shawshank Redemption")
+    await page.click(Elements.apply)
+
+    await page.waitfor(Elements.result)
+    await page.click(Elements.result)
+
+    await page.waitfor(Elements.rating)
+    rating = await page.get_value(Elements.rating)
+    assert rating == 0
+```
 
 
 # License
