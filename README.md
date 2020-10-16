@@ -49,9 +49,9 @@ class Elements:
     )
 
 
-async def test_options_mark(pyppeteer):
+async def test_pyppeteer(pyppeteer):
     page = await pyppeteer.new_page()
-    await page.goto("https://movie.douban.com")
+    await page.goto(Elements.url)
 
     await page.type(Elements.query, "The Shawshank Redemption")
     await page.click(Elements.apply)

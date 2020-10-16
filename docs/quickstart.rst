@@ -23,9 +23,9 @@ For example, query the rating of the movie **The Shawshank Redemption** on `doub
         )
 
 
-    async def test_options_mark(pyppeteer):
+    async def test_pyppteer(pyppeteer):
         page = await pyppeteer.new_page()
-        await page.goto("https://movie.douban.com")
+        await page.goto(Elements.url)
 
         await page.type(Elements.query, "The Shawshank Redemption")
         await page.click(Elements.apply)
