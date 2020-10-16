@@ -2,12 +2,12 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-with Path("README.md").open(mode="r", encoding="utf-8") as readme:
+with Path("README.md").open(encoding="utf-8") as readme:
     long_description = readme.read()
 
 setup(
     name="pytest-pyppeteer",
-    version="0.2.0",
+    version="0.2.1",
     author="Yao Meng",
     author_email="yaomeng614@gmail.com",
     maintainer="Yao Meng",
@@ -27,13 +27,14 @@ setup(
         "Topic :: Software Development :: Testing",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
         "License :: OSI Approved :: MIT License",
     ],
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "pyppeteer==0.2.2",
         "pytest-asyncio>=0.14.0",
