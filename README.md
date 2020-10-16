@@ -9,8 +9,10 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![Documentation Status](https://readthedocs.org/projects/pytest-pyppeteer/badge/?version=latest)](https://pytest-pyppeteer.readthedocs.io/?badge=latest)
 
 
-# Document
-<https://pytest-pyppeteer.readthedocs.io/>
+# Documents
+Github Pages: <https://luizyao.github.io/pytest-pyppeteer/>
+
+Gitee Pages: <https://luizyao.gitee.io/pytest-pyppeteer/>
 
 # Installation
 You can install pytest-pyppeteer via [pip](https://pypi.org/project/pip/):
