@@ -8,7 +8,7 @@ For example, query the rating of the movie **The Shawshank Redemption** on `doub
     from dataclasses import dataclass
 
 
-    @dataclass
+    @dataclass(init=False)
     class Elements:
         url = "https://movie.douban.com/"
 
