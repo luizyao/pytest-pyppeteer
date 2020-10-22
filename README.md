@@ -35,7 +35,7 @@ For example, query the rating of the movie **The Shawshank Redemption** on [doub
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(init=False)
 class Elements:
     url = "https://movie.douban.com/"
 
@@ -80,7 +80,7 @@ If you encounter any problems, please [file an issue](https://github.com/luizyao
 
 ### Fixed
 
-- 🐛 fix issue #18 [b1b2246]
+- 🐛 fix issue #18
 
 
 <a name="0.2.0"></a>
@@ -88,13 +88,12 @@ If you encounter any problems, please [file an issue](https://github.com/luizyao
 
 ### Added
 
-- ✨ support to start the browser maximized [f632ea5]
-- ✨ add new hook [bd04729]
-- ✨ add options marker [989150e]
-- ✨ add errors module [37dece5]
-- ✨ add &quot;--executable-path&quot; command line option [664dd7c]
+- ✨ support to start the browser maximized
+- ✨ add options marker
+- ✨ add errors module
+- ✨ add &quot;--executable-path&quot; command line option
 
 ### Fixed
 
-- 🐛 fix unprintable error class [d57af5a]
-- 🐛 fix different &quot;--window-size 0 0&quot; behaviors between mac and windows [ff30cdd]
+- 🐛 fix unprintable error class
+- 🐛 fix different &quot;--window-size 0 0&quot; behaviors between mac and windows

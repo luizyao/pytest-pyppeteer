@@ -8,13 +8,13 @@ if TYPE_CHECKING:
     from pytest_pyppeteer.models import Browser, Page
 
 
-@dataclass
+@dataclass(init=False)
 class Elements:
     query = "#inp-query"
     apply = ".inp-btn > input:nth-child(1)"
 
 
-@dataclass
+@dataclass(init=False)
 class BookElements(Elements):
     url = "https://book.douban.com/"
 
@@ -22,7 +22,7 @@ class BookElements(Elements):
     rating = "#interest_sectl > div > div.rating_self.clearfix > strong"
 
 
-@dataclass
+@dataclass(init=False)
 class MovieElements(Elements):
     url = "https://movie.douban.com/"
 

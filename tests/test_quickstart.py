@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(init=False)
 class Elements:
     url = "https://movie.douban.com/"
 
