@@ -72,28 +72,3 @@ Distributed under the terms of the [MIT](http://opensource.org/licenses/MIT) lic
 
 # Issues
 If you encounter any problems, please [file an issue](https://github.com/luizyao/pytest-pyppeteer/issues) along with a detailed description.
-
-# Changelog
-
-<a name="next"></a>
-## 0.2.1 (2020-10-16)
-
-### Fixed
-
-- 🐛 fix issue #18
-
-
-<a name="0.2.0"></a>
-## 0.2.0 (2020-10-02)
-
-### Added
-
-- ✨ support to start the browser maximized
-- ✨ add options marker
-- ✨ add errors module
-- ✨ add &quot;--executable-path&quot; command line option
-
-### Fixed
-
-- 🐛 fix unprintable error class
-- 🐛 fix different &quot;--window-size 0 0&quot; behaviors between mac and windows
