@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-from typing import TYPE_CHECKING, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from pydantic import BaseModel, validator
 from pyppeteer.browser import Browser as PyppeteerBrowser
@@ -295,15 +295,15 @@ class Page(BaseModel):
     async def click(
         self,
         locator: str,
-        button: Literal["left", "middle", "right"] = "left",
+        button: str = "left",
         click_count: int = 1,
         delay: int = 0,
     ):
         """Click the center of the element which matches ``locator``.
 
         :param str locator: a selector or xpath string.
-        :param Literal["left", "middle", "right"] button: ``left``,
-               ``right``, of ``middle``. Defaults to ``left``.
+        :param str button: ``left``, ``right``, of ``middle``.
+               Defaults to ``left``.
         :param int click_count: Defaults to 1.
         :param int delay: Time to wait between ``mousedown`` and
                ``mouseup`` in milliseconds. Defaults to 0.
