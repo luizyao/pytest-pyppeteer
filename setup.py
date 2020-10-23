@@ -7,7 +7,7 @@ with Path("README.md").open(encoding="utf-8") as readme:
 
 setup(
     name="pytest-pyppeteer",
-    version="0.2.1",
+    version="0.2.2",
     author="Yao Meng",
     author_email="yaomeng614@gmail.com",
     maintainer="Yao Meng",
