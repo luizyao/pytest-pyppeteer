@@ -41,11 +41,3 @@ jobs:
         with:
             source-repo: "git@github.com:luizyao/pytest-pyppeteer.git"
             destination-repo: "git@gitee.com:luizyao/pytest-pyppeteer.git"
-
-      - name: Build Gitee Pages
-        uses: yanglbme/gitee-pages-action@master
-        with:
-            gitee-username: luizyao
-            gitee-password: ${{ secrets.GITEE_PASSWORD }}
-            gitee-repo: luizyao/pytest-pyppeteer
-            branch: dev

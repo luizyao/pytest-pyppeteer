@@ -73,7 +73,7 @@ The default browser size is 800*600, you can use this option to change this beha
 ``--slow``
 >>>>>>>>>>
 
-Slow down the pyppeteer operate in milliseconds.
+Slow down the pyppeteer operate in milliseconds. Defaults to ``0.0``.
 
 No matter selector or xpath
 ---------------------------
