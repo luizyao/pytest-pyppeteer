@@ -28,8 +28,8 @@ you can specify an exact path by override this fixture:
 
     The default installation location of Chrome in different platform:
 
-    * ``win64``: C:\Program Files\Google\Chrome\Application\chrome.exe
-    * ``win32``: C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+    * ``win64``: C:/Program Files/Google/Chrome/Application/chrome.exe
+    * ``win32``: C:/Program Files (x86)/Google/Chrome/Application/chrome.exe
     * ``mac``: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
 ``--headless``
