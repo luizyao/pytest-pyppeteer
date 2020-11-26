@@ -1,11 +1,12 @@
 [[source]]
 name = "pypi"
-url = "https://mirrors.aliyun.com/pypi/simple/"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
 verify_ssl = true
 
 [dev-packages]
 pytest-pyppeteer = {editable = true,path = "."}
 sphinx-rtd-theme = "*"
+v = {editable = true,version = "*"}
 
 [packages]
 pytest = "*"
@@ -16,4 +17,4 @@ cssselect = "*"
 lxml = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

@@ -17,6 +17,7 @@ from pytest_pyppeteer.utils import parse_locator
 
 if TYPE_CHECKING:
     from pyppeteer.element_handle import ElementHandle
+    from pathlib import Path
 
 LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class Options(BaseModel):
 
     #: Path to a Chromium or Chrome executable. ``None`` means use the
     #: default bundled Chromium. Defaults to ``None``.
-    executablePath: Optional[str] = None
+    executablePath: Union[str, "Path"] = None
 
     #: Close the browser process on `Ctrl-C`. Defaults to ``True``.
     handleSIGINT: bool = True
@@ -293,11 +294,7 @@ class Page(BaseModel):
         await element.dispose()
 
     async def click(
-        self,
-        locator: str,
-        button: str = "left",
-        click_count: int = 1,
-        delay: int = 0,
+        self, locator: str, button: str = "left", click_count: int = 1, delay: int = 0,
     ):
         """Click the center of the element which matches ``locator``.
 

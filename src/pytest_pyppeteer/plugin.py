@@ -200,6 +200,10 @@ def pytest_addoption(parser: "Parser") -> None:
         help="set the initial browser window size.",
     )
 
+    group.addoption(
+        "--slow", type=float, default=0.0, help="slow down the operate in milliseconds."
+    )
+
 
 @pytest.fixture(scope="session")
 def executable_path(pytestconfig: "Config") -> Optional[str]:
@@ -299,6 +303,7 @@ def session_options(
     """
     headless: bool = pytestconfig.getoption("--headless")
     width, hight = pytestconfig.getoption("--window-size")
+    slow: float = pytestconfig.getoption("--slow")
     if width == "0" and hight == "0":
         if current_platform() == "mac":
             args.append("--start-fullscreen")
@@ -306,7 +311,9 @@ def session_options(
             args.append("--start-maximized")
     else:
         args.append("--window-size={},{}".format(width, hight))
-    return Options(args=args, executablePath=executable_path, headless=headless)
+    return Options(
+        args=args, executablePath=executable_path, headless=headless, slowMo=slow
+    )
 
 
 @pytest.fixture

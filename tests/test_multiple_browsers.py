@@ -2,8 +2,6 @@ import asyncio
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable
 
-import pytest
-
 if TYPE_CHECKING:
     from pytest_pyppeteer.models import Browser, Page
 

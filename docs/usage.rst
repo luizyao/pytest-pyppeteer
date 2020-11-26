@@ -70,6 +70,10 @@ The default browser size is 800*600, you can use this option to change this beha
 
 ``--window-size 0 0`` means to starts the browser maximized.
 
+``--slow``
+>>>>>>>>>>
+
+Slow down the pyppeteer operate in milliseconds.
 
 No matter selector or xpath
 ---------------------------
