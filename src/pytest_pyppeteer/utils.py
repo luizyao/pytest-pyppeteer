@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import cssselect
 from lxml import etree
@@ -6,9 +7,9 @@ from lxml import etree
 from pytest_pyppeteer.errors import LocatorNotAValidSelectorOrXPathError
 
 CHROME_EXECUTABLE = {
-    "mac": r"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "win64": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-    "win32": r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    "mac": Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+    "win64": Path("C:/Program Files/Google/Chrome/Application/chrome.exe"),
+    "win32": Path("C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"),
 }
 
 
@@ -25,7 +26,7 @@ def current_platform() -> str:
             return "win64"
         return "win32"
     raise OSError(
-        'Unsupport platform: "{}"; Now only support "win64", "win32", "mac"'.format(
+        'Unsupported platform: "{}"; Now only support "win64", "win32", "mac"'.format(
             sys.platform
         )
     )
