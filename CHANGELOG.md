@@ -1,18 +1,26 @@
 # Changelog
 
-<a name="0.2.2"></a>
-## 0.2.2 (2020-10-23)
+<a name="0.2.3"></a>
+## 0.2.3 (2020-11-26)
 
 ### Added
 
+- ✨ add &quot;--slow&quot; command option [63d641b]
 - ✅ update test and documents [d21e475]
+
+### Removed
+
+- ➖ Remove gitee pages [6453d11]
 
 ### Fixed
 
+- ✏️ fix typos in the documents [e75932a]
 - 🐛 fix issue #19 [98852f9]
 
 ### Miscellaneous
 
+- 💩 change the type of Chrome executable from &quot;str&quot; to &quot;Path&quot; [cd3838f]
+- 📝 add changelog file [b6531e3]
 - 📝 update documents [0d13485]
 - 📝 remove invalid shields link [f92d955]
 - 🔨 add edit on github link in the documents [e73180b]
