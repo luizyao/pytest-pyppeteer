@@ -146,6 +146,9 @@ def pytest_addoption(parser: "Parser") -> None:
       to 800 * 600. ``--window-size 0 0`` means to starts the browser
       maximized.
 
+    * ``--slow``: slow down the pyppeteer operate in milliseconds.
+      Defaults to ``0.0``.
+
     :param _pytest.config.argparsing.Parser parser: parser for command
            line arguments and ini-file values.
     :return: None
