@@ -4,7 +4,7 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-pyppeteer)
 [![GitHub issues](https://img.shields.io/github/issues-raw/luizyao/pytest-pyppeteer)](https://github.com/luizyao/pytest-pyppeteer/issues)
 [![PyPI](https://img.shields.io/pypi/v/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
+[![Downloads](https://pepy.tech/badge/pytest-pyppeteer)](https://pepy.tech/project/pytest-pyppeteer)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Documentation Status](https://readthedocs.org/projects/pytest-pyppeteer/badge/?version=latest)](https://pytest-pyppeteer.readthedocs.io/en/latest/?badge=latest)
 
