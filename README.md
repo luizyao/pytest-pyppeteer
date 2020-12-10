@@ -7,6 +7,7 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![Downloads](https://pepy.tech/badge/pytest-pyppeteer)](https://pepy.tech/project/pytest-pyppeteer)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Documentation Status](https://readthedocs.org/projects/pytest-pyppeteer/badge/?version=latest)](https://pytest-pyppeteer.readthedocs.io/en/latest/?badge=latest)
+[![中文博客](https://img.shields.io/badge/blog-%E4%B8%AD%E6%96%87%E5%8D%9A%E5%AE%A2-yellowgreen)](https://luizyao.com/post/2020-11-06-run-pyppeteer-in-pytest/)
 
 # Installation
 You can install pytest-pyppeteer via [pip](https://pypi.org/project/pip/):
