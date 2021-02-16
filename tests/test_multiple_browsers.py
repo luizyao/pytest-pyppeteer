@@ -57,4 +57,4 @@ async def test_multiple_browsers(pyppeteer_factory: "Callable"):
         query_rating(pyppeteer2, "The Shawshank Redemption", BookElements),
     )
 
-    assert movie_rating == book_rating
+    assert movie_rating >= book_rating

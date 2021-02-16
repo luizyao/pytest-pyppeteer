@@ -28,4 +28,4 @@ async def test_options_mark(pyppeteer):
 
     await page.waitfor(Elements.rating)
     rating = await page.get_value(Elements.rating)
-    assert rating == 0
+    assert float(rating) >= 9.0
