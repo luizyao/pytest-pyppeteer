@@ -1,5 +1,29 @@
 # Changelog
 
+<a name="0.2.5"></a>
+## 0.2.5 (2021-02-16)
+
+### Added
+
+- ✅ update tests [[7c0c852](https://github.com/luizyao/pytest-pyppeteer/commit/7c0c852004143275d3a26fc34b34ebf74760fa9e)]
+
+### Changed
+
+- ⬆️ upgrade pyppeteer: 0.2.3 &#x3D;&gt; 0.2.5 [[aaef028](https://github.com/luizyao/pytest-pyppeteer/commit/aaef0286be780c2bf7697dcd87a7eddf36f1eba2)]
+
+### Fixed
+
+- ✏️ add chinese blog badge [[46dd76d](https://github.com/luizyao/pytest-pyppeteer/commit/46dd76d98c027a4590778bed346ba164a42fe062)]
+
+### Security
+
+- 🔒 update lxml version.(&gt;&#x3D; 4.6.2) ([#21](https://github.com/luizyao/pytest-pyppeteer/issues/21)) [[3788590](https://github.com/luizyao/pytest-pyppeteer/commit/3788590bd100310b4057f1f452462b1a35fd36ab)]
+
+### Miscellaneous
+
+- 💡 update docstring for &quot;--slow&quot; [[1464fa6](https://github.com/luizyao/pytest-pyppeteer/commit/1464fa638656be10d6f8554f4d9656afac06022b)]
+
+
 <a name="0.2.3"></a>
 ## 0.2.3 (2020-11-26)
 

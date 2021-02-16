@@ -7,7 +7,7 @@ with Path("README.md").open(encoding="utf-8") as readme:
 
 setup(
     name="pytest-pyppeteer",
-    version="0.2.3",
+    version="0.2.5",
     author="Yao Meng",
     author_email="yaomeng614@gmail.com",
     maintainer="Yao Meng",
@@ -37,7 +37,7 @@ setup(
     entry_points={"pytest11": ["pytest_pyppeteer = pytest_pyppeteer.plugin"]},
     python_requires=">=3.7",
     install_requires=[
-        "pyppeteer==0.2.2",
+        "pyppeteer==0.2.5",
         "pytest-asyncio>=0.14.0",
         "pytest>=6.0.2",
         "pydantic>=1.6.1",

@@ -4,16 +4,16 @@ url = "https://pypi.org/simple/"
 verify_ssl = true
 
 [dev-packages]
-pytest-pyppeteer = {editable = true,path = "."}
+pytest-pyppeteer = {editable = true, path = "."}
 sphinx-rtd-theme = "*"
 
 [packages]
-pytest = "*"
-pyppeteer = "*"
-pytest-asyncio = "*"
-pydantic = "*"
 cssselect = "*"
 lxml = "*"
+pydantic = "*"
+pyppeteer = "*"
+pytest = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.8"
