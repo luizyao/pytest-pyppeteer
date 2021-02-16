@@ -69,7 +69,7 @@ async def test_lifetimes(pyppeteer: Browser):
     assert float(rating) >= 9.0
 ```
 
-![quickstart](https://pytest-pyppeteer.readthedocs.io/en/latest/_images/quickstart.gif)
+![quickstart](docs/image/quickstart.gif)
 
 # Usage
 
@@ -162,7 +162,7 @@ async def test_marker(pyppeteer):
     await asyncio.sleep(2)
 ```
 
-![options marker](https://pytest-pyppeteer.readthedocs.io/en/latest/_images/options_marker.gif)
+![options marker](docs/image/options_marker.gif)
 
 # Advanced Usage
 
@@ -237,7 +237,7 @@ async def test_multiple_browsers(pyppeteer_factory: "Callable"):
     assert movie_rating == book_rating
 ```
 
-![multiple_browsers](https://pytest-pyppeteer.readthedocs.io/en/latest/_images/multiple_browsers.gif)
+![multiple_browsers](docs/image/multiple_browsers.gif)
 
 # License
 
