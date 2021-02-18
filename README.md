@@ -107,13 +107,13 @@ Additional args to pass to the browser instance.
 
 For example, specify a proxy:
 
-```
+```bash
 $ pytest --args proxy-server "localhost:5555,direct://" --args proxy-bypass-list "192.0.0.1/8;10.0.0.1/8"
 ```
 
 Or by override the `args` fixture:
 
-```
+```python
 @pytest.fixture(scope="session")
 def args(args) -> List[str]:
     return args + [
@@ -126,7 +126,7 @@ def args(args) -> List[str]:
 
 The default browser size is 800*600, you can use this option to change this behavior:
 
-```
+```bash
 $ pytest --window-size 1200 800
 ```
 
