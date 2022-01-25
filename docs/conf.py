@@ -13,18 +13,21 @@
 import os
 import sys
 
+from pytest_pyppeteer import __version__
+
 sys.path.insert(0, os.path.abspath("../src/pytest_pyppeteer"))
 
 # -- Project information -----------------------------------------------------
 
 project = "pytest-pyppeteer"
-copyright = "2020, Yao Meng"
+copyright = "2020-2022, Yao Meng"
 author = "Yao Meng"
 
 # The full version, including alpha/beta/rc tags
-version = "latest"
-release = "latest"
+version = __version__
+release = version
 
+language = "en"
 
 # -- General configuration ---------------------------------------------------
 
@@ -39,6 +42,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
     "sphinx.ext.githubpages",
+    "sphinx.ext.napoleon",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -64,16 +68,15 @@ add_module_names = False
 # for HTML output.
 pygments_style = "sphinx"
 
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-}
+intersphinx_mapping = {"python": ("https://docs.python.org/3.7", None)}
+
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -86,3 +89,5 @@ html_context = {
     "github_repo": "pytest-pyppeteer",
     "github_version": "dev/docs/",
 }
+
+html_theme_options = {"page_width": "80%"}
