@@ -1,52 +1,51 @@
 fail_fast: true
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-        exclude_types: [json]
-      - id: check-docstring-first
-      - id: check-json
-      - id: check-yaml
-      - id: check-toml
-      - id: debug-statements
-  - repo: https://github.com/psf/black
-    rev: 21.6b0
-    hooks:
-      - id: black
-        args: ["--line-length", "120"]
-        language_version: python3
-  - repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-  - repo: https://github.com/pycqa/flake8
-    rev: 3.9.2
-    hooks:
-      - id: flake8
-        exclude: docs
-        args:
-          [
-            "--max-line-length=120",
-            "--docstring-convention=google",
-            "--exclude=tests/*",
-          ]
-        additional_dependencies:
-          [
-            "flake8-bugbear==21.4.3",
-            "flake8-docstrings==1.6.0",
-            "flake8-print==4.0.0",
-            "flake8-comprehensions==3.5.0",
-          ]
-  - repo: local
-    hooks:
-      - id: run-tests
-        name: run-tests
-        entry: pytest tests --cov src
-        language: python
-        files: ^src/
-        exclude: ^src/bismarck_frontend
-        always_run: false
-        pass_filenames: false
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.0.1
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+            exclude_types: [json]
+          - id: check-docstring-first
+          - id: check-json
+          - id: check-yaml
+          - id: check-toml
+          - id: debug-statements
+    - repo: https://github.com/psf/black
+      rev: 21.6b0
+      hooks:
+          - id: black
+            args: ["--line-length", "120"]
+            language_version: python3
+    - repo: https://github.com/pycqa/isort
+      rev: 5.8.0
+      hooks:
+          - id: isort
+            args: ["--profile", "black"]
+    - repo: https://github.com/pycqa/flake8
+      rev: 3.9.2
+      hooks:
+          - id: flake8
+            exclude: docs
+            args:
+                [
+                    "--max-line-length=120",
+                    "--docstring-convention=google",
+                    "--exclude=tests/*",
+                ]
+            additional_dependencies:
+                [
+                    "flake8-bugbear==21.4.3",
+                    "flake8-docstrings==1.6.0",
+                    "flake8-print==4.0.0",
+                    "flake8-comprehensions==3.5.0",
+                ]
+    - repo: local
+      hooks:
+          - id: run-tests
+            name: run-tests
+            entry: pytest tests --cov src
+            language: python
+            files: ^src/
+            always_run: false
+            pass_filenames: false
