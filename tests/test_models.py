@@ -28,3 +28,8 @@ class TestLocator:
     def test_invalid_content(self, content):
         with pytest.raises(ValueError, match=content):
             Locator(content)
+
+    @pytest.mark.parametrize("content", [123, 123.0, tuple(), list()])
+    def test_unsupported_content(self, content):
+        with pytest.raises(TypeError, match="'content' must be <class 'str'>"):
+            Locator(content)

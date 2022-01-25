@@ -22,7 +22,7 @@ class Locator:
     content: str = field(validator=validators.instance_of(str))
 
     @content.validator
-    def _is_valid_locator_content(self, _, value: str) -> None:
+    def _validate_content(self, _, value: str) -> None:
         """Check the validity of the locator content.
 
         Args:
