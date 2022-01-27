@@ -40,12 +40,3 @@ repos:
                     "flake8-print==4.0.0",
                     "flake8-comprehensions==3.5.0",
                 ]
-    - repo: local
-      hooks:
-          - id: run-tests
-            name: run-tests
-            entry: pytest tests --cov src
-            language: python
-            files: ^src/
-            always_run: false
-            pass_filenames: false
