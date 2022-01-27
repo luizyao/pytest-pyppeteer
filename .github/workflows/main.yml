@@ -2,7 +2,7 @@ name: Build and Deploy Github&Gitee Pages
 
 on:
     push:
-        branches: [dev]
+        branches: [feat/refactor-code]
         paths-ignore:
             - .gitignore
 
