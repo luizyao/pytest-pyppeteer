@@ -2,12 +2,14 @@ name: Test
 
 on:
     push:
-        branches: [feat/refactor-code]
+        pull_request:
+            branches: [dev, master]
         paths-ignore:
             - .gitignore
 
 jobs:
     build-and-deploy:
+        if: github.event_name == "pull_request"
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:

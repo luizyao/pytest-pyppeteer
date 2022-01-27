@@ -53,7 +53,7 @@ async def query_locator(self: Page, css_or_xpath: str) -> Optional[ElementHandle
         return elements[0] if elements else None
 
 
-async def wait_for(
+async def waitfor(
     self: Page, css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000
 ) -> None:
     """Wait for an element visible or hidden.

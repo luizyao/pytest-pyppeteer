@@ -54,10 +54,10 @@ async def test_lifetimes(browser):
     await page.type(Elements.query, "The Shawshank Redemption")
     await page.click(Elements.apply)
 
-    await page.wait_for(Elements.first_result)
+    await page.waitfor(Elements.first_result)
     await page.click(Elements.first_result)
 
-    await page.wait_for(Elements.rating)
+    await page.waitfor(Elements.rating)
     rating = await page.get_value(Elements.rating)
 
     assert float(rating) >= 9.0
@@ -69,25 +69,25 @@ async def test_lifetimes(browser):
 
 ## Fixtures
 
-### `browser`
+### `browser` fixture
 
 Provide an `pyppeteer.browser.Browser` instance with a new method `new_page()`, like `pyppeteer.browser.Browser.newPage()`, `new_page()` could create a `pyppeteer.page.Page` instance.
 
 But the `pyppeteer.page.Page` instance created by `new_page()` has some new methods:
 
-| Method                                                                                                              | Type     |
-| ------------------------------------------------------------------------------------------------------------------- | -------- |
-| query_locator(css_or_xpath: str)                                                                                    | New      |
-| wait_for(css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000)                       | New      |
-| click(css_or_xpath: str, button: Literal["left", "right", "middle"] = "left", click_count: int = 1, delay: int = 0) | Override |
-| type(css_or_xpath: str, text: str, delay: int = 0, clear: bool = False)                                             | Override |
-| get_value(css_or_xpath: str)                                                                                        | New      |
+| Method        | Type     |
+| ------------- | -------- |
+| query_locator | New      |
+| waitfor       | New      |
+| click         | Override |
+| type          | Override |
+| get_value     | New      |
 
 For example, you can query an element by css or xpath in the same method `query_locator` instead of original `querySelector` and `xpath`.
 
 > More details check with [page.py](src/pytest_pyppeteer/page.py) in the source code.
 
-### `browser_factory`
+### `browser_factory` fixture
 
 Provide to create an `pyppeteer.browser.Browser` instance.
 
@@ -120,29 +120,29 @@ class MovieElements(Elements):
     rating = "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
 
 
-async def query_rating(pyppeteer, name: str, elements: "Elements"):
-    page = await pyppeteer.new_page()
+async def query_rating(browser, name: str, elements: "Elements"):
+    page = await browser.new_page()
 
     await page.goto(elements.url)
 
     await page.type(elements.query, name)
     await page.click(elements.apply)
 
-    await page.wait_for(elements.result)
+    await page.waitfor(elements.result)
     await page.click(elements.result)
 
-    await page.wait_for(elements.rating)
+    await page.waitfor(elements.rating)
     rating = await page.get_value(elements.rating)
     return rating
 
 
 async def test_multiple_browsers(browser_factory):
-    pyppeteer1 = await browser_factory()
-    pyppeteer2 = await browser_factory()
+    browser1 = await browser_factory()
+    browser2 = await browser_factory()
 
     movie_rating, book_rating = await asyncio.gather(
-        query_rating(pyppeteer1, "The Shawshank Redemption", MovieElements),
-        query_rating(pyppeteer2, "The Shawshank Redemption", BookElements),
+        query_rating(browser1, "The Shawshank Redemption", MovieElements),
+        query_rating(browser2, "The Shawshank Redemption", BookElements),
     )
 
     assert movie_rating == book_rating
