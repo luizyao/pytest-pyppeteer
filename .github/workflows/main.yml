@@ -1,4 +1,4 @@
-name: Build and Deploy Github&Gitee Pages
+name: Testing
 
 on:
     push:
@@ -13,7 +13,7 @@ jobs:
             matrix:
                 os: [macos-latest, windows-latest]
                 python-version: ["3.7", "3.8", "3.9", "3.10"]
-        name: Testing on python ${{ matrix.python-version }}
+        name: Testing with python ${{ matrix.python-version }} on ${{ matrix.os }}
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v2.3.1

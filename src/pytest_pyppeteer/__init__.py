@@ -9,7 +9,7 @@ logging.config.dictConfig(
         "disable_existing_loggers": False,
         "formatters": {
             "verbose": {
-                "format": "%(asctime)s - %(name)-25s - %(levelname)-8s - %(message)s",
+                "format": "%(asctime)s - %(name)-16s - %(levelname)-8s - %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             }
         },
