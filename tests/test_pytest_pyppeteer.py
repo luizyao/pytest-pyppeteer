@@ -135,9 +135,9 @@ def test_options_updating(pytester: Pytester):
     result.assert_outcomes(passed=1)
 
 
-# @pytest.mark.asyncio
-# @pytest.mark.options(headless=True)
-# async def test_scenario(browser):
-#     page = await browser.new_page()
-#     await page.goto("http://www.example.com")
-#     assert (await page.get_value("body > div > h1")) == "Example Domain"
+@pytest.mark.asyncio
+@pytest.mark.options(headless=True)
+async def test_scenario(browser):
+    page = await browser.new_page()
+    await page.goto("http://www.example.com")
+    assert (await page.get_value("body > div > h1")) == "Example Domain"
