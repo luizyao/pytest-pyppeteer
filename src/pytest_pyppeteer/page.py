@@ -6,7 +6,6 @@ from logging import getLogger
 from typing import TYPE_CHECKING
 
 import cssselect
-from attr import define, field, validators
 from lxml import etree
 from pyppeteer.errors import ElementHandleError
 
@@ -14,73 +13,54 @@ if TYPE_CHECKING:
     from typing import Optional
 
     from pyppeteer.element_handle import ElementHandle
-    from pyppeteer.page import Page as PyppeteerPage
+    from pyppeteer.page import Page
 
 logger = getLogger("pytest_pyppeteer.page")
 
 
-@define
-class Locator:
-    """The locator.
+def _parse_locator(css_or_xpath: str) -> tuple:
+    if not isinstance(css_or_xpath, str):
+        raise TypeError("Locator {!r} is not a string.".format(css_or_xpath))
 
-    Attributes:
-        content (str): The incoming locator content.
-    """
+    try:
+        cssselect.parse(css_or_xpath)
+    except cssselect.SelectorSyntaxError:
+        pass
+    else:
+        return "css", css_or_xpath
 
-    _type: str = field(init=False, validator=validators.in_(("css", "xpath")))
-    content: str = field(validator=validators.instance_of(str))
+    try:
+        etree.XPath(css_or_xpath)
+    except etree.XPathSyntaxError:
+        pass
+    else:
+        return "xpath", css_or_xpath
 
-    @content.validator
-    def _validate_content(self, _, value: str) -> None:
-        """Check the validity of the locator content.
-
-        Args:
-            value (str): The locator content which needs to be validated.
-
-        Raises:
-            ValueError: The locator content neither a css nor an xpath string.
-        """
-        try:
-            cssselect.parse(value)
-        except cssselect.SelectorSyntaxError:
-            pass
-        else:
-            self._type = "css"
-            return
-
-        try:
-            etree.XPath(value)
-        except etree.XPathSyntaxError:
-            pass
-        else:
-            self._type = "xpath"
-            return
-
-        raise ValueError("Locator {!r} neither a css nor an xpath string.".format(value))
+    raise ValueError("Locator {!r} neither a css nor an xpath string.".format(css_or_xpath))
 
 
-async def query_locator(self: PyppeteerPage, css_or_xpath: str) -> Optional[ElementHandle]:
-    locator = Locator(css_or_xpath)
-    if locator._type == "css":
+async def query_locator(self: Page, css_or_xpath: str) -> Optional[ElementHandle]:
+    _type, css_or_xpath = _parse_locator(css_or_xpath)
+    if _type == "css":
         return await self.querySelector(css_or_xpath)
-    elif locator._type == "xpath":
+    elif _type == "xpath":
         elements = await self.xpath(css_or_xpath)
         return elements[0] if elements else None
 
 
-async def waitfor(
-    self: PyppeteerPage, css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000
+async def wait_for(
+    self: Page, css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000
 ) -> None:
-    locator = Locator(css_or_xpath)
+    _type, css_or_xpath = _parse_locator(css_or_xpath)
     options = {"visible": visible, "hidden": hidden, "timeout": timeout}
-    logger.debug("Wait for {!r} {!r}.".format(locator, options))
-    if locator._type == "css":
+    logger.debug("Wait for element {!r} {!r}.".format(css_or_xpath, options))
+    if _type == "css":
         await self.waitForSelector(css_or_xpath, options=options)
-    elif locator._type == "xpath":
+    elif _type == "xpath":
         await self.waitForXPath(css_or_xpath, options=options)
 
 
-async def click(self: PyppeteerPage, css_or_xpath: str, button: str = "left", click_count: int = 1, delay: int = 0):
+async def click(self: Page, css_or_xpath: str, button: str = "left", click_count: int = 1, delay: int = 0):
     element: Optional[ElementHandle] = await self.query_locator(css_or_xpath)
     if element is None:
         logger.error("Element {!r} does not exist.".format(css_or_xpath))
@@ -100,7 +80,7 @@ async def click(self: PyppeteerPage, css_or_xpath: str, button: str = "left", cl
                 break
 
 
-async def type(self: PyppeteerPage, css_or_xpath: str, text: str, delay: int = 0, clear: bool = False):
+async def type(self: Page, css_or_xpath: str, text: str, delay: int = 0, clear: bool = False):
     element: Optional[ElementHandle] = await self.query_locator(css_or_xpath)
     if element is None:
         logger.error("Element {!r} does not exist.".format(css_or_xpath))
@@ -122,7 +102,7 @@ async def type(self: PyppeteerPage, css_or_xpath: str, text: str, delay: int = 0
         await element.dispose()
 
 
-async def get_value(self: PyppeteerPage, css_or_xpath: str) -> Optional[str]:
+async def get_value(self: Page, css_or_xpath: str) -> Optional[str]:
     element: Optional[ElementHandle] = await self.query_locator(css_or_xpath)
     if element is None:
         logger.error("Element {!r} does not exist.".format(css_or_xpath))

@@ -1,12 +1,11 @@
 import pytest
 from _pytest.pytester import Pytester
-from pyppeteer.page import Page
 
-from pytest_pyppeteer.page import Locator
+from pytest_pyppeteer.page import _parse_locator
 
 
 @pytest.mark.parametrize(
-    "content, expected_type",
+    "css_or_xpath, expected_type",
     [
         ("foo", "css"),
         ("foo#bar", "css"),
@@ -20,22 +19,21 @@ from pytest_pyppeteer.page import Locator
         ("//*[@class and contains(concat(' ', normalize-space(@class), ' '), ' bar ')]", "xpath"),
     ],
 )
-def test_locator_valid_content(content, expected_type):
-    assert Locator(content)._type == expected_type, "Locator {!r} should be parsed to type {!r}.".format(
-        content, expected_type
-    )
+def test_locator_valid_content(css_or_xpath, expected_type):
+    _type, css_or_xpath = _parse_locator(css_or_xpath)
+    assert _type == expected_type, "Locator {!r} should be parsed to type {!r}.".format(css_or_xpath, expected_type)
 
 
-@pytest.mark.parametrize("content", ["##foo", "//foo??", "...."])
-def test_locator_invalid_content(content):
-    with pytest.raises(ValueError, match=content):
-        Locator(content)
+@pytest.mark.parametrize("css_or_xpath", ["##foo", "//foo??", "...."])
+def test_locator_invalid_content(css_or_xpath):
+    with pytest.raises(ValueError, match=css_or_xpath):
+        _parse_locator(css_or_xpath)
 
 
-@pytest.mark.parametrize("content", [123, 123.0, tuple(), list()])
-def test_locator_unsupported_content(content):
-    with pytest.raises(TypeError, match="'content' must be <class 'str'>"):
-        Locator(content)
+@pytest.mark.parametrize("css_or_xpath", [123, 123.0, tuple(), list()])
+def test_locator_unsupported_content(css_or_xpath):
+    with pytest.raises(TypeError, match="not a string"):
+        _parse_locator(css_or_xpath)
 
 
 def test_platform(platform):
@@ -137,21 +135,9 @@ def test_options_updating(pytester: Pytester):
     result.assert_outcomes(passed=1)
 
 
-def test_asyncio_common_def(pytester: Pytester):
-    testcase_path = pytester.makepyfile(
-        """
-    def test_demo(request):
-        assert len(list(request.node.iter_markers("asyncio"))) == 0
-    """
-    )
-    result = pytester.runpytest_inprocess(testcase_path)
-
-    result.assert_outcomes(passed=1)
-
-
-@pytest.mark.asyncio
-@pytest.mark.options(headless=True)
-async def test_scenario(pyppeteer_browser):
-    page: Page = await pyppeteer_browser.new_page()
-    await page.goto("http://www.example.com")
-    assert (await page.get_value("body > div > h1")) == "Example Domain"
+# @pytest.mark.asyncio
+# @pytest.mark.options(headless=True)
+# async def test_scenario(browser):
+#     page = await browser.new_page()
+#     await page.goto("http://www.example.com")
+#     assert (await page.get_value("body > div > h1")) == "Example Domain"

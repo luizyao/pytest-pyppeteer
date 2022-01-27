@@ -20,10 +20,12 @@ if TYPE_CHECKING:
     from _pytest.config import Config as PytestConfig
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
-    from pyppeteer.browser import Browser as PyppeteerBrowser
-    from pyppeteer.page import Page as PyppeteerPage
+    from pyppeteer.browser import Browser
+    from pyppeteer.page import Page
 
-_page_functions = getmembers(page, lambda value: isfunction(value) and getmodule(value) is page)
+_page_functions = getmembers(
+    page, lambda value: isfunction(value) and getmodule(value) is page and not value.__name__.startswith("_")
+)
 
 _chrome_executable_path = {
     "macos": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -34,7 +36,7 @@ _chrome_executable_path = {
 logger = getLogger("pytest_pyppeteer")
 
 
-async def new_page(self: PyppeteerBrowser) -> PyppeteerPage:
+async def new_page(self: Browser) -> Page:
     pyppeteer_page = await self.newPage()
     dimensions = await pyppeteer_page.evaluate(
         """() => {
@@ -49,7 +51,7 @@ async def new_page(self: PyppeteerBrowser) -> PyppeteerPage:
     await pyppeteer_page.setViewport(dimensions)
 
     for name, func in _page_functions:
-        logger.debug("Add new instance method {!r} to object {!r}.".format(name, pyppeteer_page))
+        logger.debug("Bind method {!r} to object {!r}.".format(name, pyppeteer_page))
         setattr(pyppeteer_page, name, MethodType(func, pyppeteer_page))
     return pyppeteer_page
 
@@ -69,6 +71,7 @@ def pytest_addoption(parser: Parser) -> None:
 
 @pytest.fixture(scope="session")
 def platform() -> Optional[str]:
+    """Current platform. e.g. macos, win32, win64."""
     if sys.platform.startswith("darwin"):
         return "macos"
     elif sys.platform.startswith("win"):
@@ -84,16 +87,19 @@ def platform() -> Optional[str]:
 
 @pytest.fixture(scope="session")
 def default_executable_path(platform: Optional[str]) -> Optional[str]:
+    """The default install path for Chrome browser in the current platform."""
     return _chrome_executable_path.pop(platform, None)
 
 
 @pytest.fixture(scope="session")
 def executable_path(pytestconfig: PytestConfig, default_executable_path: Optional[str]) -> Optional[str]:
+    """The Chrome executable path for this test run."""
     return pytestconfig.getoption("executable_path") or default_executable_path
 
 
 @pytest.fixture(scope="session")
 def args(pytestconfig: PytestConfig) -> List[str]:
+    """The extra args used to initialize Chrome browser."""
     return ["--" + "=".join(arg) for arg in pytestconfig.getoption("args")]
 
 
@@ -101,6 +107,7 @@ def args(pytestconfig: PytestConfig) -> List[str]:
 def session_options(
     pytestconfig: PytestConfig, platform: Optional[str], executable_path: Optional[str], args: List[str]
 ) -> dict:
+    """The default options used to initialize Chrome browser."""
     headless: bool = pytestconfig.getoption("headless")
     width, height = pytestconfig.getoption("window_size")
     slow: float = pytestconfig.getoption("slow")
@@ -115,6 +122,7 @@ def session_options(
 
 @pytest.fixture
 def options(request: FixtureRequest, session_options: dict) -> dict:
+    """The final options used to initialize Chrome browser."""
     options_mark: Mark = reduce(
         lambda mark1, mark2: mark1.combined_with(mark2),
         request.node.iter_markers("options"),
@@ -124,13 +132,14 @@ def options(request: FixtureRequest, session_options: dict) -> dict:
 
 
 @pytest.fixture
-async def pyppeteer_browser_factory(options: dict) -> Callable[..., PyppeteerBrowser]:
-    browsers: List[PyppeteerBrowser] = list()
+async def browser_factory(options: dict) -> Callable[..., Browser]:
+    """Provide to create a new browser instance."""
+    browsers: List[Browser] = list()
 
-    async def _factory() -> PyppeteerBrowser:
+    async def _factory() -> Browser:
         logger.debug("The options used to initialize the browser: {!r}".format(options))
         browser = await launch(**options)
-        # logger.debug("Add new instance method {!r} to browser instance {!r}.".format(new_page, browser))
+        # logger.debug("Bind new method {!r} to browser instance {!r}.".format(new_page, browser))
         browser.new_page = MethodType(new_page, browser)
         browsers.append(browser)
         return browser
@@ -142,5 +151,6 @@ async def pyppeteer_browser_factory(options: dict) -> Callable[..., PyppeteerBro
 
 
 @pytest.fixture
-async def pyppeteer_browser(pyppeteer_browser_factory: Callable[..., PyppeteerBrowser]) -> PyppeteerBrowser:
-    yield await pyppeteer_browser_factory()
+async def browser(browser_factory: Callable[..., Browser]) -> Browser:
+    """Provide a new browser instance."""
+    yield await browser_factory()
