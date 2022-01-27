@@ -71,8 +71,9 @@ async def query_locator(self: PyppeteerPage, css_or_xpath: str) -> Optional[Elem
 async def waitfor(
     self: PyppeteerPage, css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000
 ) -> None:
-    options = {"visible": visible, "hidden": hidden, "timeout": timeout}
     locator = Locator(css_or_xpath)
+    options = {"visible": visible, "hidden": hidden, "timeout": timeout}
+    logger.debug("Wait for {!r} {!r}.".format(locator, options))
     if locator._type == "css":
         await self.waitForSelector(css_or_xpath, options=options)
     elif locator._type == "xpath":

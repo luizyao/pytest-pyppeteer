@@ -1,5 +1,6 @@
 import pytest
 from _pytest.pytester import Pytester
+from pyppeteer.page import Page
 
 from pytest_pyppeteer.page import Locator
 
@@ -146,3 +147,11 @@ def test_asyncio_common_def(pytester: Pytester):
     result = pytester.runpytest_inprocess(testcase_path)
 
     result.assert_outcomes(passed=1)
+
+
+@pytest.mark.asyncio
+@pytest.mark.options(headless=True)
+async def test_scenario(pyppeteer_browser):
+    page: Page = await pyppeteer_browser.new_page()
+    await page.goto("http://www.example.com")
+    assert (await page.get_value("body > div > h1")) == "Example Domain"
