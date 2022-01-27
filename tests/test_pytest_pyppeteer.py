@@ -136,7 +136,6 @@ def test_options_updating(pytester: Pytester):
 
 
 @pytest.mark.asyncio
-@pytest.mark.options(headless=True)
 async def test_scenario(browser):
     page = await browser.new_page()
     await page.goto("http://www.example.com")
