@@ -5,6 +5,8 @@ on:
         types: [opened, synchronize, reopened]
         branches:
             - dev
+        paths:
+            - "**.py"
 
 jobs:
     build-and-deploy:
