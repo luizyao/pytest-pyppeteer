@@ -2,14 +2,12 @@ name: Test
 
 on:
     pull_request:
+        types: [opened, edited, reopened]
         branches:
             - dev
-        paths-ignore:
-            - .gitignore
 
 jobs:
     build-and-deploy:
-        if: github.event_name == "pull_request"
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
