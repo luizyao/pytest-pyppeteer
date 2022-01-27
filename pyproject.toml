@@ -3,6 +3,7 @@ name = "pytest-pyppeteer"
 version = "0.3.0"
 description = "A plugin to run pyppeteer in pytest"
 authors = ["Luiz Yao <luizyao@163.com>"]
+readme = "README.md"
 license = "MIT"
 
 [tool.poetry.plugins]
