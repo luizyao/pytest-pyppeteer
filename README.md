@@ -1,4 +1,5 @@
 # pytest-pyppeteer
+
 A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-pyppeteer)
@@ -6,10 +7,9 @@ A plugin to run [pyppeteer](https://github.com/pyppeteer/pyppeteer) in pytest.
 [![PyPI](https://img.shields.io/pypi/v/pytest-pyppeteer)](https://pypi.org/project/pytest-pyppeteer/)
 [![Downloads](https://pepy.tech/badge/pytest-pyppeteer)](https://pepy.tech/project/pytest-pyppeteer)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Documentation Status](https://readthedocs.org/projects/pytest-pyppeteer/badge/?version=latest)](https://pytest-pyppeteer.readthedocs.io/en/latest/?badge=latest)
-[![中文博客](https://img.shields.io/badge/blog-%E4%B8%AD%E6%96%87%E5%8D%9A%E5%AE%A2-yellowgreen)](https://luizyao.com/blog/post/2020-11-06-run-pyppeteer-in-pytest/)
 
 # Installation
+
 You can install pytest-pyppeteer via [pip](https://pypi.org/project/pip/):
 
 ```bash
@@ -22,14 +22,12 @@ or install the latest one on Github:
 pip install git+https://github.com/luizyao/pytest-pyppeteer.git
 ```
 
-
 # Quickstart
+
 For example, **The Shawshank Redemption** deserves a 9.0 or higher rating on [douban.com](https://movie.douban.com).
 
 ```python
 from dataclasses import dataclass
-
-from pytest_pyppeteer.models import Browser
 
 
 @dataclass(init=False)
@@ -43,59 +41,128 @@ class Elements:
     apply = ".inp-btn > input:nth-child(1)"
 
     # the first result
-    first_result = (
-        "#root > div > div > div > div > div:nth-child(1) > div.item-root a.cover-link"
-    )
+    first_result = "#root > div > div > div > div > div:nth-child(1) > div.item-root a.cover-link"
 
     # rating
-    rating = (
-        "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
-    )
+    rating = "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
 
 
-async def test_lifetimes(pyppeteer: Browser):
-    page = await pyppeteer.new_page()
-    await page.goto('https://movie.douban.com/')
+async def test_lifetimes(browser):
+    page = await browser.new_page()
+    await page.goto("https://movie.douban.com/")
 
     await page.type(Elements.query, "The Shawshank Redemption")
     await page.click(Elements.apply)
 
-    await page.waitfor(Elements.first_result)
+    await page.wait_for(Elements.first_result)
     await page.click(Elements.first_result)
 
-    await page.waitfor(Elements.rating)
+    await page.wait_for(Elements.rating)
     rating = await page.get_value(Elements.rating)
-    
+
     assert float(rating) >= 9.0
 ```
 
-![quickstart](docs/image/quickstart.gif)
+![quickstart](images/quickstart.gif)
 
 # Usage
+
+## Fixtures
+
+### `browser`
+
+Provide an `pyppeteer.browser.Browser` instance with a new method `new_page()`, like `pyppeteer.browser.Browser.newPage()`, `new_page()` could create a `pyppeteer.page.Page` instance.
+
+But the `pyppeteer.page.Page` instance created by `new_page()` has some new methods:
+
+| Method                                                                                                              | Type     |
+| ------------------------------------------------------------------------------------------------------------------- | -------- |
+| query_locator(css_or_xpath: str)                                                                                    | New      |
+| wait_for(css_or_xpath: str, visible: bool = True, hidden: bool = False, timeout: int = 30000)                       | New      |
+| click(css_or_xpath: str, button: Literal["left", "right", "middle"] = "left", click_count: int = 1, delay: int = 0) | Override |
+| type(css_or_xpath: str, text: str, delay: int = 0, clear: bool = False)                                             | Override |
+| get_value(css_or_xpath: str)                                                                                        | New      |
+
+For example, you can query an element by css or xpath in the same method `query_locator` instead of original `querySelector` and `xpath`.
+
+> More details check with [page.py](src/pytest_pyppeteer/page.py) in the source code.
+
+### `browser_factory`
+
+Provide to create an `pyppeteer.browser.Browser` instance.
+
+For example, query the **The Shawshank Redemption**’s movie and book rating on [douban.com](https://movie.douban.com/) at the same time, then compare them.
+
+```python
+import asyncio
+from dataclasses import dataclass
+
+
+@dataclass
+class Elements:
+    query = "#inp-query"
+    apply = ".inp-btn > input:nth-child(1)"
+
+
+@dataclass
+class BookElements(Elements):
+    url = "https://book.douban.com/"
+
+    result = '(//*[@class="item-root"])[1]/a'
+    rating = "#interest_sectl > div > div.rating_self.clearfix > strong"
+
+
+@dataclass
+class MovieElements(Elements):
+    url = "https://movie.douban.com/"
+
+    result = "#root > div > div > div > div > div:nth-child(1) > div.item-root a.cover-link"
+    rating = "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
+
+
+async def query_rating(pyppeteer, name: str, elements: "Elements"):
+    page = await pyppeteer.new_page()
+
+    await page.goto(elements.url)
+
+    await page.type(elements.query, name)
+    await page.click(elements.apply)
+
+    await page.wait_for(elements.result)
+    await page.click(elements.result)
+
+    await page.wait_for(elements.rating)
+    rating = await page.get_value(elements.rating)
+    return rating
+
+
+async def test_multiple_browsers(browser_factory):
+    pyppeteer1 = await browser_factory()
+    pyppeteer2 = await browser_factory()
+
+    movie_rating, book_rating = await asyncio.gather(
+        query_rating(pyppeteer1, "The Shawshank Redemption", MovieElements),
+        query_rating(pyppeteer2, "The Shawshank Redemption", BookElements),
+    )
+
+    assert movie_rating == book_rating
+```
+
+![multiple_browsers](images/multiple_browsers.gif)
 
 ## Command line options
 
 ### `--executable-path`
 
-You can specify the path to a Chromium or Chrome executable. otherwise pytest-pyppeteer will use the default installation location of Chrome in current platform, but now only support `win64`, `win32` and `mac` platform.
+You can specify the Chromium or Chrome executable path. Otherwise I will use the default install path of Chrome in current platform.
 
 For other platforms, pyppeteer will downloads the recent version of Chromium when called first time. If you don’t prefer this behavior, you can specify an exact path by override this fixture:
 
 ```python
 @pytest.fixture(scope="session")
 def executable_path(executable_path):
-    if executable_path is None:
-        return "path/to/Chrome/or/Chromium"
-    return executable_path
+    return executable_path or "path/to/Chrome/or/Chromium"
 ```
-
-> **Note**:
->
-> The default installation location of Chrome in different platform:
->
-> - `win64`: C:/Program Files/Google/Chrome/Application/chrome.exe
-> - `win32`: C:/Program Files (x86)/Google/Chrome/Application/chrome.exe
-> - `mac`: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
 ### `--headless`
 
@@ -124,7 +191,7 @@ def args(args) -> List[str]:
 
 ### `--window-size`
 
-The default browser size is 800*600, you can use this option to change this behavior:
+The default browser size is 800\*600, you can use this option to change this behavior:
 
 ```bash
 $ pytest --window-size 1200 800
@@ -136,15 +203,9 @@ $ pytest --window-size 1200 800
 
 Slow down the pyppeteer operate in milliseconds. Defaults to `0.0`.
 
-## No matter selector or xpath
+## Markers
 
-`pyppeteer` fixture provide a `pytest_pyppeteer.models.Browser` instance, its usage is almost the same as `pyppeteer.browser.Browser`, except that it provides a new instance method: `new_page()`, which is similar to `newPage()`, but it returns a `pytest_pyppeteer.models.Page` instead of `pyppeteer.page.Page`.
-
-`pytest_pyppeteer.models.Page`’s usage is also the same as `pyppeteer.page.Page`, but it provides some new instance methods, and override some methods. For example, you can query an element by selector or xpath in just same method `query_locator` instead of original `querySelector` and `xpath`.
-
-You can also get an original `Page` by `pyppeteer.newPage()`.
-
-## `options` marker
+### `options`
 
 You can override some command line options in the specified test.
 
@@ -162,87 +223,12 @@ async def test_marker(pyppeteer):
     await asyncio.sleep(2)
 ```
 
-![options marker](docs/image/options_marker.gif)
-
-# Advanced Usage
-
-## Control multiple browsers asynchronously
-
-You can easily to control multiple browsers at the same time.
-
-For example, query the **The Shawshank Redemption**’s movie and book rating on [douban.com](https://movie.douban.com/) at the same time, then compare them.
-
-```python
-import asyncio
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
-
-import pytest
-
-if TYPE_CHECKING:
-    from .models import Browser, Page
-
-
-@dataclass
-class Elements:
-    query = "#inp-query"
-    apply = ".inp-btn > input:nth-child(1)"
-
-
-@dataclass
-class BookElements(Elements):
-    url = "https://book.douban.com/"
-
-    result = '(//*[@class="item-root"])[1]/a'
-    rating = "#interest_sectl > div > div.rating_self.clearfix > strong"
-
-
-@dataclass
-class MovieElements(Elements):
-    url = "https://movie.douban.com/"
-
-    result = (
-        "#root > div > div > div > div > div:nth-child(1) > div.item-root a.cover-link"
-    )
-    rating = (
-        "#interest_sectl > div.rating_wrap.clearbox > div.rating_self.clearfix > strong"
-    )
-
-
-async def query_rating(pyppeteer: "Browser", name: str, elements: "Elements"):
-    page: Page = await pyppeteer.new_page()
-
-    await page.goto(elements.url)
-
-    await page.type(elements.query, name)
-    await page.click(elements.apply)
-
-    await page.waitfor(elements.result)
-    await page.click(elements.result)
-
-    await page.waitfor(elements.rating)
-    rating = await page.get_value(elements.rating)
-    return rating
-
-
-async def test_multiple_browsers(pyppeteer_factory: "Callable"):
-    pyppeteer1 = await pyppeteer_factory()
-    pyppeteer2 = await pyppeteer_factory()
-
-    movie_rating, book_rating = await asyncio.gather(
-        query_rating(pyppeteer1, "The Shawshank Redemption", MovieElements),
-        query_rating(pyppeteer2, "The Shawshank Redemption", BookElements),
-    )
-
-    assert movie_rating == book_rating
-```
-
-![multiple_browsers](docs/image/multiple_browsers.gif)
+![options marker](images/options_marker.gif)
 
 # License
 
 Distributed under the terms of the [MIT](http://opensource.org/licenses/MIT) license, pytest-pyppeteer is free and open source software.
 
-
 # Issues
+
 If you encounter any problems, please [file an issue](https://github.com/luizyao/pytest-pyppeteer/issues) along with a detailed description.
