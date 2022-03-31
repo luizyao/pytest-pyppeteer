@@ -5,6 +5,12 @@ description = "A plugin to run pyppeteer in pytest"
 authors = ["Luiz Yao <luizyao@163.com>"]
 readme = "README.md"
 license = "MIT"
+homepage = "https://github.com/luizyao/pytest-pyppeteer/"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/luizyao/pytest-pyppeteer/issues"
+Documentation = "https://github.com/luizyao/pytest-pyppeteer/blob/dev/README.md"
+Repository = "https://github.com/luizyao/pytest-pyppeteer/"
 
 [tool.poetry.plugins]
 
