@@ -218,8 +218,8 @@ import pytest
 
 
 @pytest.mark.options(devtools=True)
-async def test_marker(pyppeteer):
-    await pyppeteer.new_page()
+async def test_marker(browser):
+    await browser.new_page()
     await asyncio.sleep(2)
 ```
 
