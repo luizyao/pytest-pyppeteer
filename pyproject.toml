@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-pyppeteer"
-version = "0.3.0"
+version = "0.3.1"
 description = "A plugin to run pyppeteer in pytest"
 authors = ["Luiz Yao <luizyao@163.com>"]
 readme = "README.md"
